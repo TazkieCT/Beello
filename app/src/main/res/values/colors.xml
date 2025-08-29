@@ -5,4 +5,5 @@
     <color name="gray">#919191</color>
     <color name="colorSelected">#006993</color>
     <color name="colorDefault">#FFFFFF</color>
+    <color name="colorOutline">#FFFFFF</color>
 </resources>
