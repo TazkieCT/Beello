@@ -10,6 +10,9 @@ import java.util.*
 import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
+import android.widget.Button
+import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
@@ -43,9 +46,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         "001011" to "!", "001010" to "(", "001110" to ")", "001000" to "/"
     )
 
-    var isNumberMode = false
+    private var isNumberMode = false
 
-    fun decodeBraille(code: String): String {
+    private fun decodeBraille(code: String): String {
         return when {
             code == "001111" -> {
                 isNumberMode = !isNumberMode
@@ -53,9 +56,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             isNumberMode -> {
                 val num = numberMap[code]
-                if (num != null) {
-                    num
-                } else {
+                if (num != null) num
+                else {
                     isNumberMode = false
                     letterMap[code] ?: symbolMap[code] ?: ""
                 }
@@ -71,6 +73,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
+        // restore state jika ada
+        if (savedInstanceState != null) {
+            savedInstanceState.getString("text_buffer")?.let {
+                textBuffer.append(it)
+                binding.textView.text = textBuffer.toString()
+            }
+        }
+
+        // tombol non-null
         val buttons = listOf(
             binding.button1,
             binding.button2,
@@ -101,6 +112,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                     resetDots(buttons)
                 }
+
                 handler.postDelayed(pendingRunnable!!, 300)
             }
         }
@@ -125,13 +137,18 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("text_buffer", textBuffer.toString())
+    }
+
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts.setLanguage(Locale("id", "ID"))
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 println("Bahasa tidak didukung")
             } else {
-                speak("Selamat datang di aplikasi Braille")
+//                speak("Selamat datang di aplikasi Braille")
             }
         } else {
             println("Inisialisasi TTS gagal")
@@ -171,14 +188,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
-    private fun resetDots(buttons: List<android.view.View>) {
+    private fun resetDots(buttons: List<MaterialButton>) {
         for (i in brailleDots.indices) {
             brailleDots[i] = false
             buttons[i].isSelected = false
+            buttons[i].isChecked = false
         }
     }
 
-    private fun flushPending(buttons: List<android.view.View>) {
+    private fun flushPending(buttons: List<MaterialButton>) {
         pendingRunnable?.let {
             handler.removeCallbacks(it)
             it.run()
@@ -187,7 +205,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 }
 
-// Function untuk swipe
+// Swipe gesture helper
 class SwipeGestureListener(
     private val onSwipeLeft: () -> Unit,
     private val onSwipeRight: () -> Unit,
@@ -207,22 +225,21 @@ class SwipeGestureListener(
         val diffX = e2.x - (e1?.x ?: e2.x)
         val diffY = e2.y - (e1?.y ?: e2.y)
 
-        return if (Math.abs(diffX) > Math.abs(diffY)) {
-            if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+        return if (kotlin.math.abs(diffX) > kotlin.math.abs(diffY)) {
+            if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD && kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffX > 0) onSwipeRight() else onSwipeLeft()
                 true
             } else false
         } else {
-            if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+            if (kotlin.math.abs(diffY) > SWIPE_THRESHOLD && kotlin.math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffY > 0) onSwipeDown() else onSwipeUp()
                 true
             } else false
         }
     }
-
 }
 
-fun android.view.View.enableSwipeGestures(
+fun View.enableSwipeGestures(
     onSwipeLeft: () -> Unit,
     onSwipeRight: () -> Unit,
     onSwipeUp: () -> Unit,
