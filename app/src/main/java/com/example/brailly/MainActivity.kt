@@ -19,34 +19,84 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val handler = Handler(Looper.getMainLooper())
     private var pendingRunnable: Runnable? = null
 
-    private val brailleMap = mapOf(
+    private val letterMap = mapOf(
         "100000" to "A",
-        "101000" to "B",
-        "110000" to "C",
-        "110100" to "D",
-        "100100" to "E",
-        "111000" to "F",
-        "111100" to "G",
-        "101100" to "H",
-        "011000" to "I",
-        "011100" to "J",
-        "100010" to "K",
-        "101010" to "L",
-        "110010" to "M",
-        "110110" to "N",
-        "100110" to "O",
-        "111010" to "P",
+        "110000" to "B",
+        "100100" to "C",
+        "100110" to "D",
+        "100010" to "E",
+        "110100" to "F",
+        "110110" to "G",
+        "110010" to "H",
+        "010100" to "I",
+        "010110" to "J",
+        "101000" to "K",
+        "111000" to "L",
+        "101100" to "M",
+        "101110" to "N",
+        "101010" to "O",
+        "111100" to "P",
         "111110" to "Q",
-        "101110" to "R",
-        "011010" to "S",
+        "111010" to "R",
+        "011100" to "S",
         "011110" to "T",
-        "100011" to "U",
-        "101011" to "V",
-        "011101" to "W",
-        "110011" to "X",
-        "110111" to "Y",
-        "100111" to "Z"
+        "101001" to "U",
+        "111001" to "V",
+        "010111" to "W",
+        "101101" to "X",
+        "101111" to "Y",
+        "101011" to "Z"
     )
+
+    private val numberMap = mapOf(
+        "100000" to "1",
+        "110000" to "2",
+        "100100" to "3",
+        "100110" to "4",
+        "100010" to "5",
+        "110100" to "6",
+        "110110" to "7",
+        "110010" to "8",
+        "010100" to "9",
+        "010110" to "0"
+    )
+
+
+    private val symbolMap = mapOf(
+        "001111" to "#",
+        "000010" to ",",
+        "000110" to ";",
+        "000011" to ":",
+        "000111" to ".",
+        "000101" to "?",
+        "000001" to "'",
+        "000100" to "-",
+        "001011" to "!",
+        "001010" to "(",
+        "001110" to ")",
+        "001000" to "/"
+    )
+
+    var isNumberMode = false
+
+    fun decodeBraille(code: String): String {
+        return when {
+            code == "001111" -> {
+                isNumberMode = !isNumberMode
+                "#"
+            }
+            isNumberMode -> {
+                val num = numberMap[code]
+                if (num != null) {
+                    num
+                } else {
+                    isNumberMode = false
+                    letterMap[code] ?: symbolMap[code] ?: ""
+                }
+            }
+            else -> letterMap[code] ?: symbolMap[code] ?: ""
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,9 +123,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                 pendingRunnable = Runnable {
                     val code = brailleDots.joinToString("") { if (it) "1" else "0" }
-                    val result = brailleMap[code]
+                    val result = decodeBraille(code)
 
-                    if (result != null) {
+                    if (result.isNotEmpty()) {
                         textBuffer.append(result)
                         binding.textView.text = textBuffer.toString()
                         speak(result)
