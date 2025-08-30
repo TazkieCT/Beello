@@ -15,10 +15,15 @@ class LandingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLandingBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_landing)
+        setContentView(binding.root)
 
         binding.brailleButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.tutorialButton.setOnClickListener {
+            val intent = Intent(this, TutorialActivity::class.java)
             startActivity(intent)
         }
     }
