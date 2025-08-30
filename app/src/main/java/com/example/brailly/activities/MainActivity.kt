@@ -1,4 +1,4 @@
-package com.example.brailly
+package com.example.brailly.activities
 
 import android.os.Bundle
 import android.os.Handler
@@ -11,8 +11,8 @@ import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
 import com.google.android.material.button.MaterialButton
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
@@ -225,13 +225,13 @@ class SwipeGestureListener(
         val diffX = e2.x - (e1?.x ?: e2.x)
         val diffY = e2.y - (e1?.y ?: e2.y)
 
-        return if (kotlin.math.abs(diffX) > kotlin.math.abs(diffY)) {
-            if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD && kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+        return if (abs(diffX) > abs(diffY)) {
+            if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffX > 0) onSwipeRight() else onSwipeLeft()
                 true
             } else false
         } else {
-            if (kotlin.math.abs(diffY) > SWIPE_THRESHOLD && kotlin.math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+            if (abs(diffY) > SWIPE_THRESHOLD && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffY > 0) onSwipeDown() else onSwipeUp()
                 true
             } else false

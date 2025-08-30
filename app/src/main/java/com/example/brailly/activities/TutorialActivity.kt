@@ -1,14 +1,12 @@
-package com.example.brailly
+package com.example.brailly.activities
 
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.example.brailly.R
 import com.example.brailly.databinding.ActivityTutorialBinding
 
 class TutorialActivity : AppCompatActivity() {
@@ -21,7 +19,8 @@ class TutorialActivity : AppCompatActivity() {
         "Langkah 1: Kenalan dengan Braille",
         "Langkah 2: Belajar huruf A - Z",
         "Langkah 3: Belajar angka 0 - 9",
-        "Langkah 4: Latihan mengetik Braille"
+        "Langkah 4: Kontrol aplikasi Braille",
+        "Langkah 4: Latihan mengetik Braille",
     )
     private var currentStep = 0
 
@@ -59,9 +58,9 @@ class TutorialActivity : AppCompatActivity() {
                 return if (Math.abs(diffX) > Math.abs(diffY)) {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
-                            goPrev() // swipe kanan = prev
+                            goPrev()
                         } else {
-                            goNext() // swipe kiri = next
+                            goNext()
                         }
                         true
                     } else false
@@ -91,5 +90,30 @@ class TutorialActivity : AppCompatActivity() {
     private fun updateUI() {
         tutorialText.text = steps[currentStep]
         progressBar.progress = ((currentStep + 1) * 100) / steps.size
+
+        binding.prevButton.visibility = if (currentStep == 0) {
+            android.view.View.GONE
+        } else {
+            android.view.View.VISIBLE
+        }
+
+        binding.nextButton.visibility = if (currentStep == steps.size - 1) {
+            android.view.View.GONE
+        } else {
+            android.view.View.VISIBLE
+        }
+
+        val container = binding.tutorialContainer
+        container.removeAllViews()
+
+        val layoutRes = when (currentStep) {
+            0 -> R.layout.fragment_tutorial1
+            1 -> R.layout.fragment_tutorial2
+            2 -> R.layout.fragment_tutorial1
+            else -> R.layout.fragment_tutorial2
+        }
+
+        val view = layoutInflater.inflate(layoutRes, container, false)
+        container.addView(view)
     }
 }
