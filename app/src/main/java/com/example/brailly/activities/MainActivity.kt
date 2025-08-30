@@ -41,9 +41,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     )
 
     private val symbolMap = mapOf(
-        "001111" to "#", "000010" to ",", "000110" to ";", "000011" to ":",
-        "000111" to ".", "000101" to "?", "000001" to "'", "000100" to "-",
-        "001011" to "!", "001010" to "(", "001110" to ")", "001000" to "/"
+        "001111" to "#", "010000" to ",", "010011" to ".", "011001" to "?",
+        "001000" to "'", "001001" to "-", "011010" to "!"
     )
 
     private var isNumberMode = false
