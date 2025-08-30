@@ -6,21 +6,16 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
-import com.example.brailly.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 import java.util.*
-import kotlin.math.abs
-import androidx.core.view.GestureDetectorCompat
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
 import com.example.brailly.R
+import com.example.brailly.databinding.ActivityQuizBinding
 import com.example.brailly.utils.enableSwipeGestures
 
 class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityQuizBinding
     private var mediaPlayer: MediaPlayer? = null
 
     private val animals = listOf(
@@ -79,7 +74,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityQuizBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         tts = TextToSpeech(this, this)
@@ -161,12 +156,23 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun playAnimalSound() {
-        mediaPlayer?.release()
-        currentAnimal?.let {
-            mediaPlayer = MediaPlayer.create(this, it.soundRes)
-            mediaPlayer?.start()
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop()
+            }
+            it.release()
         }
+
+        mediaPlayer = currentAnimal?.let { MediaPlayer.create(this, it.soundRes) }
+
+        mediaPlayer?.start()
     }
+
+    private fun speak(text: String, flush: Boolean = true) {
+        val queueMode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+        tts.speak(text, queueMode, null, null)
+    }
+
 
     private fun checkAnswer() {
         val userAnswer = textBuffer.toString().uppercase(Locale.getDefault())
@@ -178,10 +184,6 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         } else {
             speak("Salah, coba lagi")
         }
-    }
-
-    private fun speak(text: String) {
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     override fun onInit(status: Int) {

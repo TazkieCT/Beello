@@ -3,11 +3,15 @@ package com.example.brailly.activities
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.brailly.R
 import com.example.brailly.databinding.ActivityTutorialBinding
+import com.example.brailly.fragments.Tutorial1Fragment
+import com.example.brailly.fragments.Tutorial2Fragment
+import com.example.brailly.fragments.Tutorial5Fragment
 
 class TutorialActivity : AppCompatActivity() {
 
@@ -91,31 +95,21 @@ class TutorialActivity : AppCompatActivity() {
         tutorialText.text = steps[currentStep]
         progressBar.progress = ((currentStep + 1) * 100) / steps.size
 
-        binding.prevButton.visibility = if (currentStep == 0) {
-            android.view.View.GONE
-        } else {
-            android.view.View.VISIBLE
+        binding.prevButton.visibility = if (currentStep == 0) View.GONE else View.VISIBLE
+        binding.nextButton.visibility = if (currentStep == steps.size - 1) View.GONE else View.VISIBLE
+
+        val fragment = when (currentStep) {
+            0 -> Tutorial1Fragment()
+            1 -> Tutorial2Fragment()
+            2 -> Tutorial1Fragment()
+            3 -> Tutorial1Fragment()
+            4 -> Tutorial5Fragment()
+            else -> Tutorial5Fragment()
         }
 
-        binding.nextButton.visibility = if (currentStep == steps.size - 1) {
-            android.view.View.GONE
-        } else {
-            android.view.View.VISIBLE
-        }
-
-        val container = binding.tutorialContainer
-        container.removeAllViews()
-
-        val layoutRes = when (currentStep) {
-            0 -> R.layout.fragment_tutorial1
-            1 -> R.layout.fragment_tutorial2
-            2 -> R.layout.fragment_tutorial1
-            3 -> R.layout.fragment_tutorial1
-            4 -> R.layout.fragment_tutorial5
-            else -> R.layout.fragment_tutorial5
-        }
-
-        val view = layoutInflater.inflate(layoutRes, container, false)
-        container.addView(view)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.tutorialContainer, fragment)
+            .commit()
     }
+
 }
