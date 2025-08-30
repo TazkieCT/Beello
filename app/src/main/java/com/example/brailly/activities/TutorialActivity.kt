@@ -11,6 +11,7 @@ import com.example.brailly.R
 import com.example.brailly.databinding.ActivityTutorialBinding
 import com.example.brailly.fragments.Tutorial1Fragment
 import com.example.brailly.fragments.Tutorial2Fragment
+import com.example.brailly.fragments.Tutorial3Fragment
 import com.example.brailly.fragments.Tutorial5Fragment
 
 class TutorialActivity : AppCompatActivity() {
@@ -101,7 +102,7 @@ class TutorialActivity : AppCompatActivity() {
         val fragment = when (currentStep) {
             0 -> Tutorial1Fragment()
             1 -> Tutorial2Fragment()
-            2 -> Tutorial1Fragment()
+            2 -> Tutorial3Fragment()
             3 -> Tutorial1Fragment()
             4 -> Tutorial5Fragment()
             else -> Tutorial5Fragment()
