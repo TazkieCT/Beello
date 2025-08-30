@@ -1,29 +1,42 @@
 package com.example.brailly.activities
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import com.example.brailly.databinding.ActivityMainBinding
+import com.google.android.material.button.MaterialButton
 import java.util.*
+import kotlin.math.abs
 import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.example.brailly.R
 import com.example.brailly.utils.enableSwipeGestures
-import com.google.android.material.button.MaterialButton
-import kotlin.math.abs
 
-class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
     private lateinit var binding: ActivityMainBinding
+    private var mediaPlayer: MediaPlayer? = null
+
+    private val animals = listOf(
+        Animal("KUCING", R.raw.cat, "Kucing"),
+        Animal("ANJING", R.raw.dog, "Anjing"),
+        Animal("AYAM", R.raw.chicken, "Ayam"),
+    )
+
+    private var currentAnimal: Animal? = null
+    private var currentIndex = 0
 
     private val brailleDots = BooleanArray(6) { false }
     private val textBuffer = StringBuilder()
     private val handler = Handler(Looper.getMainLooper())
     private var pendingRunnable: Runnable? = null
+    private var isNumberMode = false
 
     private val letterMap = mapOf(
         "100000" to "A", "110000" to "B", "100100" to "C", "100110" to "D",
@@ -45,8 +58,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         "001111" to "#", "010000" to ",", "010011" to ".", "011001" to "?",
         "001000" to "'", "001001" to "-", "011010" to "!"
     )
-
-    private var isNumberMode = false
 
     private fun decodeBraille(code: String): String {
         return when {
@@ -73,20 +84,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
-        if (savedInstanceState != null) {
-            savedInstanceState.getString("text_buffer")?.let {
-                textBuffer.append(it)
-                binding.textView.text = textBuffer.toString()
-            }
-        }
-
         val buttons = listOf(
-            binding.button1,
-            binding.button2,
-            binding.button3,
-            binding.button4,
-            binding.button5,
-            binding.button6
+            binding.button1, binding.button2, binding.button3,
+            binding.button4, binding.button5, binding.button6
         )
 
         buttons.forEachIndexed { index, button ->
@@ -95,11 +95,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 button.isSelected = brailleDots[index]
 
                 pendingRunnable?.let { handler.removeCallbacks(it) }
-
                 pendingRunnable = Runnable {
                     val code = brailleDots.joinToString("") { if (it) "1" else "0" }
                     val result = decodeBraille(code)
-
                     if (result.isNotEmpty()) {
                         textBuffer.append(result)
                         binding.textView.text = textBuffer.toString()
@@ -107,83 +105,89 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     } else {
                         speak("kombinasi tidak dikenal")
                     }
-
                     resetDots(buttons)
                 }
-
                 handler.postDelayed(pendingRunnable!!, 300)
             }
         }
 
         binding.root.enableSwipeGestures(
             onSwipeLeft = {
-                flushPending(buttons)
-                deleteLast()
+                if (textBuffer.isNotEmpty()) {
+                    val removed = textBuffer.last()
+                    textBuffer.deleteCharAt(textBuffer.length - 1)
+                    binding.textView.text = textBuffer.toString()
+                    speak("hapus $removed")
+                }
             },
             onSwipeRight = {
-                flushPending(buttons)
-                addSpace()
+                speak("Jawabannya adalah ${currentAnimal?.answer}")
+                nextQuestion()
             },
             onSwipeUp = {
-                flushPending(buttons)
-                speakAll()
+                playAnimalSound()
             },
             onSwipeDown = {
-                flushPending(buttons)
-                clearText()
+                checkAnswer()
             }
         )
+
+        startQuiz()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("text_buffer", textBuffer.toString())
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
+        tts.shutdown()
     }
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val result = tts.setLanguage(Locale("id", "ID"))
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                println("Bahasa tidak didukung")
-            } else {
-//                speak("Selamat datang di aplikasi Braille")
-            }
-        } else {
-            println("Inisialisasi TTS gagal")
+    private fun startQuiz() {
+        currentIndex = 0
+        nextQuestion()
+    }
+
+    private fun nextQuestion() {
+        if (currentIndex >= animals.size) {
+            speak("Selamat, semua hewan sudah ditebak!")
+            return
         }
-    }
+        currentAnimal = animals[currentIndex]
+        currentIndex++
 
-    private fun addSpace() {
-        textBuffer.append(" ")
-        binding.textView.text = textBuffer.toString()
-        speak("spasi")
-    }
-
-    private fun deleteLast() {
-        if (textBuffer.isNotEmpty()) {
-            val removed = textBuffer.last()
-            textBuffer.deleteCharAt(textBuffer.length - 1)
-            binding.textView.text = textBuffer.toString()
-            speak("hapus $removed")
-        }
-    }
-
-    private fun speakAll() {
-        if (textBuffer.isNotEmpty()) {
-            speak(textBuffer.toString())
-        } else {
-            speak("tidak ada teks")
-        }
-    }
-
-    private fun clearText() {
         textBuffer.clear()
-        binding.textView.text = ""
-        speak("teks dihapus")
+        binding.textView.text = "Tebak hewan ini..."
+
+        playAnimalSound()
+    }
+
+    private fun playAnimalSound() {
+        mediaPlayer?.release()
+        currentAnimal?.let {
+            mediaPlayer = MediaPlayer.create(this, it.soundRes)
+            mediaPlayer?.start()
+        }
+    }
+
+    private fun checkAnswer() {
+        val userAnswer = textBuffer.toString().uppercase(Locale.getDefault())
+        val correctAnswer = currentAnimal?.answer?.uppercase(Locale.getDefault())
+
+        if (userAnswer == correctAnswer) {
+            speak("Benar! Ini adalah ${currentAnimal?.hint}")
+            nextQuestion()
+        } else {
+            speak("Salah, coba lagi")
+        }
     }
 
     private fun speak(text: String) {
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts.language = Locale("id", "ID")
+        }
     }
 
     private fun resetDots(buttons: List<MaterialButton>) {
@@ -193,12 +197,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             buttons[i].isChecked = false
         }
     }
-
-    private fun flushPending(buttons: List<MaterialButton>) {
-        pendingRunnable?.let {
-            handler.removeCallbacks(it)
-            it.run()
-            pendingRunnable = null
-        }
-    }
 }
+
+data class Animal(
+    val answer: String,
+    val soundRes: Int,
+    val hint: String
+)

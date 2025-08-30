@@ -20,7 +20,7 @@ class TutorialActivity : AppCompatActivity() {
         "Langkah 2: Belajar huruf A - Z",
         "Langkah 3: Belajar angka 0 - 9",
         "Langkah 4: Kontrol aplikasi Braille",
-        "Langkah 4: Latihan mengetik Braille",
+        "Langkah 5: Latihan mengetik Braille",
     )
     private var currentStep = 0
 
@@ -110,7 +110,9 @@ class TutorialActivity : AppCompatActivity() {
             0 -> R.layout.fragment_tutorial1
             1 -> R.layout.fragment_tutorial2
             2 -> R.layout.fragment_tutorial1
-            else -> R.layout.fragment_tutorial2
+            3 -> R.layout.fragment_tutorial1
+            4 -> R.layout.fragment_tutorial5
+            else -> R.layout.fragment_tutorial5
         }
 
         val view = layoutInflater.inflate(layoutRes, container, false)
