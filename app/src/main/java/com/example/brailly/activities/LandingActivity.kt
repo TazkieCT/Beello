@@ -26,17 +26,16 @@ class LandingActivity : AppCompatActivity() {
         binding = ActivityLandingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize TTS helper
         ttsHelper = TtsHelper(this)
+
+        // Speak welcome instructions
         speakWelcomeInstructions()
 
         // Enable swipe gestures
         binding.root.enableSwipeGestures(
-            onSwipeUp = {
-                startTutorial()
-            },
-            onSwipeDown = {
-                startBrailleSimulation()
-            }
+            onSwipeUp = { startTutorial() },
+            onSwipeDown = { startBrailleSimulation() }
         )
 
         // Direct button navigation
@@ -50,7 +49,7 @@ class LandingActivity : AppCompatActivity() {
             "Selamat datang di aplikasi Braille. " +
                     "Swipe ke atas untuk mulai panduan. " +
                     "Swipe ke bawah untuk mulai simulasi mengetik Braille.",
-            false
+            flush = true
         )
     }
 
