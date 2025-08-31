@@ -24,34 +24,27 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ayo berlatih mengetik huruf Braille dengan permainan quiz seru!"
+            android:text="Ayo berlatih mengetik huruf Braille dengan permainan quiz seru! Geser layar ke atas untuk memulai quiz, atau ke bawah untuk simulasi mengetik Braille dengan bebas."
             android:textAlignment="center"
             android:textSize="16sp"
             android:layout_marginBottom="24dp" />
 
         <Button
             android:id="@+id/start_quiz_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mulai Quiz"
-            android:paddingLeft="32dp"
-            android:paddingRight="32dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp" />
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="12dp"
+            android:text="Mulai Quiz" />
 
         <Button
             android:id="@+id/braille_button"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:paddingLeft="32dp"
-            android:paddingRight="32dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
+            android:layout_marginHorizontal="32dp"
             android:text="Mulai Mengetik Braille"
             android:textColor="@color/colorSelected"
-            android:textStyle="bold"
             app:strokeColor="@color/colorSelected"
             app:strokeWidth="2dp" />
 

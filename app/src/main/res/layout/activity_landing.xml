@@ -33,17 +33,6 @@
         app:layout_constraintStart_toStartOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/textView"-->
-    <!--        android:layout_width="250dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginTop="16dp"-->
-    <!--        android:text="Kemudahan dalam mengelola sampah, mulai dari hal kecil, memberikan perubahan besar"-->
-    <!--        android:textAlignment="center"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/textView7" />-->
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tutorial_button"
         android:layout_width="match_parent"

@@ -26,7 +26,7 @@ class Tutorial2Fragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.brailleRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4) // 4 kolom
+        binding.brailleRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
         binding.brailleRecyclerView.adapter = BrailleAdapter(getBrailleList())
     }
 
