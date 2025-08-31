@@ -14,7 +14,7 @@ Designed to make learning and practicing Braille accessible, interactive, and fu
 ---
 
 ## Overview
-![App Screenshot](https://drive.google.com/uc?export=view&id=1qOUQ5OLtoRRWNyHdYOUcuYSOCRi2j7TZ)
+![App Screenshot]([https://drive.google.com/uc?export=view&id=1qOUQ5OLtoRRWNyHdYOUcuYSOCRi2j7TZ](https://github.com/TazkieCT/Beello/blob/625226043d64eb6a919e110e9ac4c4ef5bc6c13b/picture.png))
 
 ---
 
