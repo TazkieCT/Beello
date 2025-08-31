@@ -3,71 +3,57 @@ package com.example.brailly.activities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import com.example.brailly.databinding.ActivityMainBinding
-import java.util.*
-import androidx.core.view.GestureDetectorCompat
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
 import com.example.brailly.helper.vibrate
 import com.example.brailly.utils.BrailleMappings
+import com.example.brailly.utils.TtsHelper
 import com.example.brailly.utils.enableSwipeGestures
 import com.google.android.material.button.MaterialButton
-import kotlin.math.abs
 
-class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+/**
+ * MainActivity serves as the core Braille typing simulation.
+ *
+ * Features:
+ * - Six-button Braille input with tactile feedback.
+ * - Swipe gestures for text editing: delete, space, speak all, and clear.
+ * - Text-to-Speech (TTS) for auditory feedback of entered text.
+ * - Supports number mode toggle and Braille character decoding.
+ */
+class MainActivity : AppCompatActivity() {
 
-    private lateinit var tts: TextToSpeech
     private lateinit var binding: ActivityMainBinding
-
+    private lateinit var ttsHelper: TtsHelper
     private val brailleDots = BooleanArray(6) { false }
     private val textBuffer = StringBuilder()
     private val handler = Handler(Looper.getMainLooper())
     private var pendingRunnable: Runnable? = null
-
     private var isNumberMode = false
-
-    private fun decodeBraille(code: String): String {
-        return when {
-            code == "001111" -> {
-                isNumberMode = !isNumberMode
-                "#"
-            }
-            isNumberMode -> {
-                BrailleMappings.numberMap[code] ?: run {
-                    isNumberMode = false
-                    BrailleMappings.letterMap[code] ?: BrailleMappings.symbolMap[code] ?: ""
-                }
-            }
-            else -> BrailleMappings.letterMap[code] ?: BrailleMappings.symbolMap[code] ?: ""
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        tts = TextToSpeech(this, this)
+        ttsHelper = TtsHelper(this)
 
-        if (savedInstanceState != null) {
-            savedInstanceState.getString("text_buffer")?.let {
-                textBuffer.append(it)
-                binding.resultText.text = textBuffer.toString()
-            }
+        // Restore saved text
+        savedInstanceState?.getString("text_buffer")?.let {
+            textBuffer.append(it)
+            binding.resultText.text = textBuffer.toString()
         }
 
         val buttons = listOf(
-            binding.button1,
-            binding.button2,
-            binding.button3,
-            binding.button4,
-            binding.button5,
-            binding.button6
+            binding.button1, binding.button2, binding.button3,
+            binding.button4, binding.button5, binding.button6
         )
 
+        setupBrailleButtons(buttons)
+        setupSwipeGestures(buttons)
+    }
+
+    /** Sets up click listeners for Braille buttons */
+    private fun setupBrailleButtons(buttons: List<MaterialButton>) {
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 brailleDots[index] = !brailleDots[index]
@@ -83,9 +69,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (result.isNotEmpty()) {
                         textBuffer.append(result)
                         binding.resultText.text = textBuffer.toString()
-                        speak(result)
+                        ttsHelper.speak(result, false)
                     } else {
-                        speak("kombinasi tidak dikenal")
+                        ttsHelper.speak("kombinasi tidak dikenal", false)
                     }
 
                     resetDots(buttons)
@@ -94,7 +80,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 handler.postDelayed(pendingRunnable!!, 500)
             }
         }
+    }
 
+    /** Sets up swipe gestures for editing text */
+    private fun setupSwipeGestures(buttons: List<MaterialButton>) {
         binding.root.enableSwipeGestures(
             onSwipeLeft = {
                 flushPending(buttons)
@@ -115,57 +104,54 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("text_buffer", textBuffer.toString())
-    }
-
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val result = tts.setLanguage(Locale("id", "ID"))
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                println("Bahasa tidak didukung")
-            } else {
-//                speak("Selamat datang di aplikasi Braille")d
+    /** Decodes a Braille code string into a character */
+    private fun decodeBraille(code: String): String {
+        return when {
+            code == "001111" -> {
+                isNumberMode = !isNumberMode
+                "#"
             }
-        } else {
-            println("Inisialisasi TTS gagal")
+            isNumberMode -> {
+                BrailleMappings.numberMap[code] ?: run {
+                    isNumberMode = false
+                    BrailleMappings.letterMap[code] ?: BrailleMappings.symbolMap[code] ?: ""
+                }
+            }
+            else -> BrailleMappings.letterMap[code] ?: BrailleMappings.symbolMap[code] ?: ""
         }
     }
 
+    /** Adds a space to the text buffer and speaks "spasi" */
     private fun addSpace() {
         textBuffer.append(" ")
         binding.resultText.text = textBuffer.toString()
-        speak("spasi")
+        ttsHelper.speak("spasi", false)
     }
 
+    /** Deletes the last character and announces it */
     private fun deleteLast() {
         if (textBuffer.isNotEmpty()) {
             val removed = textBuffer.last()
             textBuffer.deleteCharAt(textBuffer.length - 1)
             binding.resultText.text = textBuffer.toString()
-            speak("hapus $removed")
+            ttsHelper.speak("hapus $removed", false)
         }
     }
 
+    /** Speaks the entire text buffer */
     private fun speakAll() {
-        if (textBuffer.isNotEmpty()) {
-            speak(textBuffer.toString())
-        } else {
-            speak("tidak ada teks")
-        }
+        if (textBuffer.isNotEmpty()) ttsHelper.speak(textBuffer.toString(), false)
+        else ttsHelper.speak("tidak ada teks", false)
     }
 
+    /** Clears all text and announces the action */
     private fun clearText() {
         textBuffer.clear()
         binding.resultText.text = ""
-        speak("teks dihapus")
+        ttsHelper.speak("teks dihapus", false)
     }
 
-    private fun speak(text: String) {
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-    }
-
+    /** Resets Braille dots and button states */
     private fun resetDots(buttons: List<MaterialButton>) {
         for (i in brailleDots.indices) {
             brailleDots[i] = false
@@ -174,11 +160,23 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    /** Executes pending Braille decoding immediately */
     private fun flushPending(buttons: List<MaterialButton>) {
         pendingRunnable?.let {
             handler.removeCallbacks(it)
             it.run()
             pendingRunnable = null
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("text_buffer", textBuffer.toString())
+    }
+
+    override fun onDestroy() {
+        ttsHelper.stop()
+        ttsHelper.shutdown()
+        super.onDestroy()
     }
 }

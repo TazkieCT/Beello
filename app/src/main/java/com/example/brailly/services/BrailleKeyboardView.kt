@@ -15,17 +15,27 @@ import android.speech.tts.TextToSpeech
 import com.example.brailly.helper.vibrate
 import java.util.Locale
 
+/**
+ * Custom View for Braille keyboard input.
+ *
+ * Supports six-dot Braille input, real-time visual feedback, and TTS feedback in Indonesian.
+ */
 class BrailleKeyboardView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
+    // Regions for each Braille dot
     private val dotRegions = mutableListOf<RectF>()
+
+    // Background paint for the keyboard
     private val backgroundPaint = Paint().apply {
         color = Color.argb(180, 0, 0, 0)
         style = Paint.Style.FILL
     }
+
     private var tts: TextToSpeech? = null
 
+    // Mapping from dot index to logical button number
     private val indexToButtonNumber = mapOf(
         0 to 4,
         1 to 5,
@@ -36,17 +46,20 @@ class BrailleKeyboardView @JvmOverloads constructor(
     )
 
     init {
+        // Initialize TTS for Indonesian
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale("id", "ID")
             }
         }
 
+        // Force landscape orientation
         if (context is Activity) {
             context.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
     }
 
+    /** Speak the given text using TTS */
     private fun speak(text: String) {
         tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
@@ -58,12 +71,14 @@ class BrailleKeyboardView @JvmOverloads constructor(
         val columnWidth = w / 2f
         val rowHeight = h / 3f
 
+        // Define left column dots
         for (row in 0..2) {
             val left = 0f
             val top = row * rowHeight
             dotRegions.add(RectF(left, top, columnWidth, top + rowHeight))
         }
 
+        // Define right column dots
         for (row in 0..2) {
             val left = columnWidth
             val top = row * rowHeight
@@ -85,6 +100,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
         val normalColor = Color.argb(180, 60, 60, 60)
         val activeColor = Color.argb(220, 30, 30, 30)
 
+        // Draw each Braille dot with proper visual feedback
         dotRegions.forEachIndexed { index, rect ->
             val paint = Paint().apply {
                 color = if (activeDots.contains(indexToButtonNumber[index])
@@ -95,6 +111,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
             canvas.drawRoundRect(rect, 20f, 20f, paint)
         }
 
+        // Draw the current character in the middle
         currentChar?.let {
             val paint = Paint().apply {
                 color = Color.WHITE
@@ -107,6 +124,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
             canvas.drawText(it, x, y, paint)
         }
 
+        // Handle fading effect
         if (fading && charAlpha > 0) {
             charAlpha -= 10
             if (charAlpha < 0) charAlpha = 0
@@ -114,6 +132,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
         }
     }
 
+    /** Display a character temporarily */
     private fun showChar(char: String) {
         currentChar = char
         charAlpha = 255
@@ -148,7 +167,6 @@ class BrailleKeyboardView @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 if (activeDots.isNotEmpty()) {
                     context.vibrate(30)
-
                     pressedDots.clear()
                     pressedDots.addAll(activeDots)
 
@@ -172,13 +190,16 @@ class BrailleKeyboardView @JvmOverloads constructor(
         return true
     }
 
+    /** Commit text to the input connection */
     private fun commitText(text: String) {
         (context as? InputMethodService)?.currentInputConnection?.commitText(text, 1)
     }
 
+    /** Handle Braille input and map dots to characters or actions */
     private fun handleBrailleInput(dots: List<Int>) {
         val inputConnection = (context as? InputMethodService)?.currentInputConnection
 
+        // Single-dot commands
         when {
             dots.contains(2) && dots.size == 1 -> {
                 commitText(" ")
@@ -192,15 +213,9 @@ class BrailleKeyboardView @JvmOverloads constructor(
             }
             dots.contains(4) && dots.size == 1 -> {
                 val extracted = inputConnection?.getExtractedText(
-                    android.view.inputmethod.ExtractedTextRequest(),
-                    0
+                    android.view.inputmethod.ExtractedTextRequest(), 0
                 )?.text?.toString()
-
-                if (!extracted.isNullOrEmpty()) {
-                    speak(extracted)
-                } else {
-                    speak("tidak ada teks")
-                }
+                if (!extracted.isNullOrEmpty()) speak(extracted) else speak("tidak ada teks")
                 return
             }
             dots.contains(5) && dots.size == 1 -> {
@@ -210,10 +225,8 @@ class BrailleKeyboardView @JvmOverloads constructor(
             }
             dots.contains(6) && dots.size == 1 -> {
                 val extracted = inputConnection?.getExtractedText(
-                    android.view.inputmethod.ExtractedTextRequest(),
-                    0
+                    android.view.inputmethod.ExtractedTextRequest(), 0
                 )?.text?.toString()
-
                 if (!extracted.isNullOrEmpty()) {
                     val lastSpace = extracted.lastIndexOf(' ')
                     val deleteCount = if (lastSpace == -1) extracted.length else extracted.length - lastSpace
@@ -224,6 +237,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
             }
         }
 
+        // Map Braille dots to letters
         val brailleMap = mapOf(
             listOf(1) to "A",
             listOf(1, 2) to "B",

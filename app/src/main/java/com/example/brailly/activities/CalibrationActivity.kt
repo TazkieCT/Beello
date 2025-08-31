@@ -3,11 +3,10 @@ package com.example.brailly.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import com.example.brailly.databinding.ActivityCalibrationBinding
 import com.example.brailly.helper.vibrate
-import java.util.*
+import com.example.brailly.utils.TtsHelper
 
 /**
  * CalibrationActivity guides the user through button calibration before using the app.
@@ -18,10 +17,10 @@ import java.util.*
  * - Tactile feedback using device vibration.
  * - Persists calibration state in SharedPreferences to skip future calibration.
  */
-class CalibrationActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+class CalibrationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCalibrationBinding
-    private lateinit var tts: TextToSpeech
+    private lateinit var ttsHelper: TtsHelper
 
     private val buttonList by lazy {
         listOf(
@@ -34,36 +33,8 @@ class CalibrationActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
     }
 
-    private lateinit var buttonPositions: Map<Int, String>
-    private var currentButtonIndex = 0
-    private var quizActive = false
-
-    // Quiz state
-    private var quizRound = 0
-    private val totalQuizRounds = 3
-    private var currentQuizButtonId: Int = 0
-
-    // TTS readiness
-    private var ttsReady = false
-    private val speakQueue = mutableListOf<String>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val prefs = getSharedPreferences("BraillyPrefs", Context.MODE_PRIVATE)
-        val isCalibrated = prefs.getBoolean("isCalibrated", false)
-        if (isCalibrated) {
-            startLandingActivity()
-            finish()
-            return
-        }
-
-        binding = ActivityCalibrationBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        tts = TextToSpeech(this, this)
-
-        buttonPositions = mapOf(
+    private val buttonPositions by lazy {
+        mapOf(
             binding.button1.id to "kiri atas",
             binding.button2.id to "kiri tengah",
             binding.button3.id to "kiri bawah",
@@ -71,144 +42,142 @@ class CalibrationActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             binding.button5.id to "kanan tengah",
             binding.button6.id to "kanan bawah"
         )
-
-        buttonList.forEach { button ->
-            button.setOnClickListener {
-                if (!quizActive) {
-                    handleCalibrationInput(button.id)
-                } else {
-                    handleQuizInput(button.id)
-                }
-            }
-        }
     }
 
-    /** Handles user input during the calibration phase */
+    private var currentButtonIndex = 0
+    private var quizActive = false
+    private var quizRound = 0
+    private val totalQuizRounds = 3
+    private var currentQuizButtonId = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val prefs = getSharedPreferences("BraillyPrefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("isCalibrated", false)) {
+            startLandingActivity()
+            return
+        }
+
+        binding = ActivityCalibrationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        ttsHelper = TtsHelper(this)
+
+        buttonList.forEach { button ->
+            button.setOnClickListener { handleButtonClick(button.id) }
+        }
+
+        startCalibrationIntro()
+    }
+
+    /** Handles button click depending on phase (calibration or quiz) */
+    private fun handleButtonClick(buttonId: Int) {
+        if (quizActive) handleQuizInput(buttonId)
+        else handleCalibrationInput(buttonId)
+    }
+
+    /** Calibration input handling */
     private fun handleCalibrationInput(buttonId: Int) {
-        if (buttonId == buttonList[currentButtonIndex].id) {
+        val expectedButton = buttonList[currentButtonIndex]
+        if (buttonId == expectedButton.id) {
             vibrate()
-            speak("Sudah benar!")
+            ttsHelper.speak("Sudah benar!", false)
             currentButtonIndex++
             if (currentButtonIndex < buttonList.size) {
-                ttsPlayDelayed(1500) { speakNextButtonInstruction() }
+                binding.root.postDelayed({ speakNextButtonInstruction() }, 1500)
             } else {
-                ttsPlayDelayed(1500) {
-                    speak("Kalibrasi dasar selesai. Sekarang kita akan melakukan quiz singkat.")
-                    ttsPlayDelayed(2000) { startQuiz() }
-                }
+                binding.root.postDelayed({
+                    ttsHelper.speak(
+                        "Kalibrasi dasar selesai. Sekarang kita akan melakukan quiz singkat.",
+                        false
+                    )
+                    binding.root.postDelayed({ startQuiz() }, 2000)
+                }, 1500)
             }
         } else {
             vibrate()
-            val correctButton = buttonList[currentButtonIndex]
-            val num = getButtonNumber(correctButton.id)
-            val pos = buttonPositions[correctButton.id]
-            speak("Tombol salah, coba tekan tombol $num, posisinya $pos.")
+            val num = getButtonNumber(expectedButton.id)
+            val pos = buttonPositions[expectedButton.id]
+            ttsHelper.speak("Tombol salah, coba tekan tombol $num, posisinya $pos.", false)
         }
     }
 
-    /** Speaks instruction for the next button to press */
+    /** Speaks instruction for the next calibration button */
     private fun speakNextButtonInstruction() {
         val button = buttonList[currentButtonIndex]
         val num = getButtonNumber(button.id)
         val pos = buttonPositions[button.id]
-        speak("Coba tekan tombol $num, posisinya $pos.")
+        ttsHelper.speak("Coba tekan tombol $num, posisinya $pos.", false)
     }
 
-    /** Starts the quiz phase after calibration */
+    /** Starts the quiz phase */
     private fun startQuiz() {
         quizActive = true
         quizRound = 0
-        speak("Quiz dimulai. Tekan tombol yang saya sebutkan.")
-        ttsPlayDelayed(3000) { nextQuizRound() }
+        ttsHelper.speak("Quiz dimulai. Tekan tombol yang saya sebutkan.", false)
+        binding.root.postDelayed({ nextQuizRound() }, 3000)
     }
 
-    /** Advances to the next quiz round or completes calibration */
+    /** Handles quiz input */
+    private fun handleQuizInput(buttonId: Int) {
+        if (buttonId == currentQuizButtonId) {
+            vibrate()
+            ttsHelper.speak("Benar!", false)
+            quizRound++
+            binding.root.postDelayed({ nextQuizRound() }, 2000)
+        } else {
+            vibrate()
+            val num = getButtonNumber(buttonList.first { it.id == currentQuizButtonId }.id)
+            ttsHelper.speak("Salah, coba tekan tombol $num.", false)
+        }
+    }
+
+    /** Proceeds to next quiz round or finishes calibration */
     private fun nextQuizRound() {
         if (quizRound >= totalQuizRounds) {
-            speak("Selamat, kalibrasi selesai.")
-            ttsPlayDelayed(3000) {
+            ttsHelper.speak("Selamat, kalibrasi selesai.", false)
+            binding.root.postDelayed({
                 getSharedPreferences("BraillyPrefs", Context.MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("isCalibrated", true)
-                    .apply()
+                    .edit().putBoolean("isCalibrated", true).apply()
                 startLandingActivity()
-            }
+            }, 3000)
             return
         }
 
         val button = buttonList.random()
         currentQuizButtonId = button.id
         val num = getButtonNumber(currentQuizButtonId)
-        speak("Ronde ${quizRound + 1}: Tekan tombol $num.")
+        ttsHelper.speak("Ronde ${quizRound + 1}: Tekan tombol $num.", false)
     }
 
-    /** Handles user input during the quiz phase */
-    private fun handleQuizInput(buttonId: Int) {
-        if (buttonId == currentQuizButtonId) {
-            vibrate()
-            speak("Benar!")
-            quizRound++
-            ttsPlayDelayed(2000) { nextQuizRound() }
-        } else {
-            vibrate()
-            val correctButton = buttonList.first { it.id == currentQuizButtonId }
-            val num = getButtonNumber(correctButton.id)
-            speak("Salah, coba tekan tombol $num.")
-        }
-    }
+    /** Maps button ID to number */
+    private fun getButtonNumber(buttonId: Int) = buttonList.indexOfFirst { it.id == buttonId } + 1
 
-    /** Returns the numeric identifier for a given button */
-    private fun getButtonNumber(buttonId: Int) = when (buttonId) {
-        binding.button1.id -> 1
-        binding.button2.id -> 2
-        binding.button3.id -> 3
-        binding.button4.id -> 4
-        binding.button5.id -> 5
-        binding.button6.id -> 6
-        else -> 0
-    }
-
-    /** Speaks text using TTS, queues if TTS is not ready */
-    private fun speak(text: String) {
-        if (ttsReady) {
-            tts.speak(text, TextToSpeech.QUEUE_ADD, null, null)
-        } else {
-            speakQueue.add(text)
-        }
-    }
-
-    /** Executes a given action after a delay on the UI thread */
-    private fun ttsPlayDelayed(delay: Long, action: () -> Unit) {
-        binding.root.postDelayed(action, delay)
-    }
-
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            tts.language = Locale("id", "ID")
-            ttsReady = true
-            speakQueue.forEach { speak(it) }
-            speakQueue.clear()
-
-            // Intro and calibration instructions
-            ttsPlayDelayed(400) {
-                speak("Selamat datang di aplikasi Beello. Sebelum menggunakan aplikasi, mohon ikuti instruksi saya untuk melakukan kalibrasi tombol.")
-                ttsPlayDelayed(4000) {
-                    speak("Sekarang kita mulai kalibrasi. Ikuti instruksi saya untuk setiap tombol.")
-                    ttsPlayDelayed(3000) { speakNextButtonInstruction() }
-                }
-            }
-        }
+    /** Starts calibration introduction */
+    private fun startCalibrationIntro() {
+        binding.root.postDelayed({
+            ttsHelper.speak(
+                "Selamat datang di aplikasi Beello. Sebelum menggunakan aplikasi, mohon ikuti instruksi saya untuk melakukan kalibrasi tombol.",
+                false
+            )
+            binding.root.postDelayed({
+                ttsHelper.speak(
+                    "Sekarang kita mulai kalibrasi. Ikuti instruksi saya untuk setiap tombol.",
+                    false
+                )
+                binding.root.postDelayed({ speakNextButtonInstruction() }, 3000)
+            }, 4000)
+        }, 400)
     }
 
     override fun onDestroy() {
-        if (::tts.isInitialized) {
-            tts.stop()
-            tts.shutdown()
-        }
+        ttsHelper.stop()
+        ttsHelper.shutdown()
         super.onDestroy()
     }
 
-    /** Launches the main landing activity after calibration */
+    /** Launches the main landing activity */
     private fun startLandingActivity() {
         startActivity(Intent(this, LandingActivity::class.java))
         finish()

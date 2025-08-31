@@ -7,27 +7,40 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.brailly.R
 import com.example.brailly.databinding.ActivityTutorialBinding
-import com.example.brailly.fragments.Tutorial1Fragment
-import com.example.brailly.fragments.Tutorial2Fragment
-import com.example.brailly.fragments.Tutorial3Fragment
-import com.example.brailly.fragments.Tutorial4Fragment
-import com.example.brailly.fragments.Tutorial5Fragment
+import com.example.brailly.fragments.*
 import com.example.brailly.utils.enableSwipeGestures
 
+/**
+ * TutorialActivity displays a step-by-step guide to learning Braille.
+ *
+ * Features:
+ * - Shows tutorial text and progress bar.
+ * - Loads tutorial fragments dynamically per step.
+ * - Supports navigation via swipe gestures and buttons.
+ */
 class TutorialActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityTutorialBinding
     private lateinit var tutorialText: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var binding: ActivityTutorialBinding
+
+    private var currentStep = 0
 
     private val steps = listOf(
         "Langkah 1: Kenalan dengan Braille",
         "Langkah 2: Belajar huruf A - Z",
         "Langkah 3: Belajar angka 0 - 9",
         "Langkah 4: Kontrol aplikasi Braille",
-        "Langkah 5: Latihan mengetik Braille",
+        "Langkah 5: Latihan mengetik Braille"
     )
-    private var currentStep = 0
+
+    private val fragments = listOf(
+        Tutorial1Fragment(),
+        Tutorial2Fragment(),
+        Tutorial3Fragment(),
+        Tutorial4Fragment(),
+        Tutorial5Fragment()
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,20 +50,18 @@ class TutorialActivity : AppCompatActivity() {
         tutorialText = binding.tutorialText
         progressBar = binding.progressBar
 
-        val nextButton = binding.nextButton
-        val prevButton = binding.prevButton
-
-        updateUI()
-
-        nextButton.setOnClickListener { goNext() }
-        prevButton.setOnClickListener { goPrev() }
+        binding.nextButton.setOnClickListener { goNext() }
+        binding.prevButton.setOnClickListener { goPrev() }
 
         binding.root.enableSwipeGestures(
             onSwipeLeft = { goNext() },
             onSwipeRight = { goPrev() }
         )
+
+        updateUI()
     }
 
+    /** Move to next step if not at the last step */
     private fun goNext() {
         if (currentStep < steps.size - 1) {
             currentStep++
@@ -58,6 +69,7 @@ class TutorialActivity : AppCompatActivity() {
         }
     }
 
+    /** Move to previous step if not at the first step */
     private fun goPrev() {
         if (currentStep > 0) {
             currentStep--
@@ -65,6 +77,7 @@ class TutorialActivity : AppCompatActivity() {
         }
     }
 
+    /** Updates tutorial text, progress, buttons, and fragment */
     private fun updateUI() {
         tutorialText.text = steps[currentStep]
         progressBar.progress = ((currentStep + 1) * 100) / steps.size
@@ -72,14 +85,7 @@ class TutorialActivity : AppCompatActivity() {
         binding.prevButton.visibility = if (currentStep == 0) View.GONE else View.VISIBLE
         binding.nextButton.visibility = if (currentStep == steps.size - 1) View.GONE else View.VISIBLE
 
-        val fragment = when (currentStep) {
-            0 -> Tutorial1Fragment()
-            1 -> Tutorial2Fragment()
-            2 -> Tutorial3Fragment()
-            3 -> Tutorial4Fragment()
-            4 -> Tutorial5Fragment()
-            else -> Tutorial5Fragment()
-        }
+        val fragment = fragments.getOrElse(currentStep) { Tutorial5Fragment() }
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.tutorialContainer, fragment)

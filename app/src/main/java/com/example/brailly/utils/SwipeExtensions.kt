@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.view.GestureDetectorCompat
 import kotlin.math.abs
 
+// Handles swipe gestures and calls the appropriate lambda
 class SwipeGestureListener(
     private val onSwipeLeft: () -> Unit,
     private val onSwipeRight: () -> Unit,
@@ -13,8 +14,8 @@ class SwipeGestureListener(
     private val onSwipeDown: () -> Unit
 ) : GestureDetector.SimpleOnGestureListener() {
 
-    private val SWIPE_THRESHOLD = 100
-    private val SWIPE_VELOCITY_THRESHOLD = 100
+    private val SWIPE_THRESHOLD = 100 // Minimum distance in px for a swipe
+    private val SWIPE_VELOCITY_THRESHOLD = 100 // Minimum speed in px/s
 
     override fun onFling(
         e1: MotionEvent?,
@@ -26,11 +27,13 @@ class SwipeGestureListener(
         val diffY = e2.y - (e1?.y ?: e2.y)
 
         return if (abs(diffX) > abs(diffY)) {
+            // Horizontal swipe
             if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffX > 0) onSwipeRight() else onSwipeLeft()
                 true
             } else false
         } else {
+            // Vertical swipe
             if (abs(diffY) > SWIPE_THRESHOLD && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffY > 0) onSwipeDown() else onSwipeUp()
                 true
@@ -39,6 +42,7 @@ class SwipeGestureListener(
     }
 }
 
+// Extension function to easily attach swipe gestures to any View
 fun View.enableSwipeGestures(
     onSwipeLeft: () -> Unit = {},
     onSwipeRight: () -> Unit = {},
