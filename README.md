@@ -1,6 +1,6 @@
-# Brailly
+# Beello
 
-**Brailly** – An interactive Braille learning and typing app for Android.  
+**Beello** – An interactive Braille learning and typing app for Android.  
 Brailly helps users learn Braille through guided tutorials, button calibration, and a Braille typing simulator. It features:
 
 - Step-by-step **tutorials** for learning letters, numbers, and symbols.  
