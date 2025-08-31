@@ -15,13 +15,15 @@
         android:theme="@style/Theme.Brailly">
         <activity
             android:name=".activities.QuizActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="screenSize|keyboardHidden" />
         <activity
             android:name=".activities.TutorialActivity"
             android:exported="false" />
         <activity
             android:name=".activities.LandingActivity"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

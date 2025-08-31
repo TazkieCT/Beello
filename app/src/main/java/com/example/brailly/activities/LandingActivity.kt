@@ -1,6 +1,7 @@
 package com.example.brailly.activities
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
@@ -32,14 +33,22 @@ class LandingActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
 
         binding.brailleButton.setOnClickListener {
+            tts.stop()
+            tts.shutdown()
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
         binding.tutorialButton.setOnClickListener {
+            tts.stop()
+            tts.shutdown()
             val intent = Intent(this, TutorialActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
     }
 
     override fun onInit(status: Int) {

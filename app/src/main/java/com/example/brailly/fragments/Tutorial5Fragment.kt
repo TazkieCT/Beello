@@ -35,10 +35,11 @@ class Tutorial5Fragment : Fragment(), TextToSpeech.OnInitListener {
 
         binding.root.enableSwipeGestures(
             onSwipeUp = {
-                startActivity(Intent(requireContext(), QuizActivity::class.java))
-                speak("Memulai quiz Braille")
+                goToQuiz()
             },
             onSwipeDown = {
+                tts?.stop()
+                tts?.shutdown()
                 startActivity(Intent(requireContext(), MainActivity::class.java))
                 speak("Membuka simulasi mengetik Braille")
             }
@@ -63,8 +64,11 @@ class Tutorial5Fragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     private fun goToQuiz() {
+        tts?.stop()
+        tts?.shutdown()
         val intent = Intent(requireContext(), QuizActivity::class.java)
         startActivity(intent)
+        speak("Memulai quiz Braille")
     }
 
     override fun onDestroy() {

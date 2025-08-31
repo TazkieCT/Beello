@@ -26,6 +26,15 @@ class BrailleKeyboardView @JvmOverloads constructor(
     }
     private var tts: TextToSpeech? = null
 
+    private val indexToButtonNumber = mapOf(
+        0 to 4,
+        1 to 5,
+        2 to 6,
+        3 to 1,
+        4 to 2,
+        5 to 3
+    )
+
     init {
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
@@ -78,7 +87,8 @@ class BrailleKeyboardView @JvmOverloads constructor(
 
         dotRegions.forEachIndexed { index, rect ->
             val paint = Paint().apply {
-                color = if (activeDots.contains(index + 1) || pressedDots.contains(index + 1))
+                color = if (activeDots.contains(indexToButtonNumber[index])
+                    || pressedDots.contains(indexToButtonNumber[index]))
                     activeColor else normalColor
                 style = Paint.Style.FILL
             }
@@ -126,7 +136,9 @@ class BrailleKeyboardView @JvmOverloads constructor(
                     val y = event.getY(i)
                     dotRegions.forEachIndexed { dotIndex, rect ->
                         if (rect.contains(x, y)) {
-                            activeDots.add(dotIndex + 1)
+                            indexToButtonNumber[dotIndex]?.let { buttonNumber ->
+                                activeDots.add(buttonNumber)
+                            }
                         }
                     }
                 }
@@ -151,8 +163,6 @@ class BrailleKeyboardView @JvmOverloads constructor(
                     invalidate()
                 }
             }
-
-
 
             MotionEvent.ACTION_CANCEL -> {
                 activeDots.clear()

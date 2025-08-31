@@ -1,5 +1,6 @@
 package com.example.brailly.activities
 
+import android.content.res.Configuration
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -106,6 +107,10 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
 
         startQuiz()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
     }
 
     override fun onDestroy() {
