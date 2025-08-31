@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     resetDots(buttons)
                 }
 
-                handler.postDelayed(pendingRunnable!!, 300)
+                handler.postDelayed(pendingRunnable!!, 500)
             }
         }
 

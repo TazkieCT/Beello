@@ -9,7 +9,7 @@
     android:padding="24dp">
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -20,13 +20,13 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
-        android:id="@+id/tutorialText"
+        android:id="@+id/tutorial_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Langkah 1: Kenalan dengan Braille"
         android:textSize="18sp"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/progressBar"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp"/>
@@ -36,13 +36,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:layout_constraintBottom_toTopOf="@+id/nextButton"
-        app:layout_constraintTop_toBottomOf="@+id/tutorialText"
+        app:layout_constraintBottom_toTopOf="@+id/next_button"
+        app:layout_constraintTop_toBottomOf="@+id/tutorial_text"
         tools:layout_editor_absoluteX="24dp"
         android:layout_marginTop="8dp"/>
 
     <Button
-        android:id="@+id/prevButton"
+        android:id="@+id/prev_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Kembali"
@@ -50,7 +50,7 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
-        android:id="@+id/nextButton"
+        android:id="@+id/next_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Lanjut"
