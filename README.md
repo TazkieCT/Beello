@@ -13,8 +13,8 @@ Designed to make learning and practicing Braille accessible, interactive, and fu
 
 ---
 
-## Demo
-![App Screenshot]([https://drive.google.com/file/d/1qOUQ5OLtoRRWNyHdYOUcuYSOCRi2j7TZ/view?usp=drive_link](https://github.com/TazkieCT/Beello/blob/master/picture.png?raw=true))  
+## Overview
+![image alt]([https://drive.google.com/file/d/1qOUQ5OLtoRRWNyHdYOUcuYSOCRi2j7TZ/view?usp=drive_link](https://github.com/TazkieCT/Beello/blob/master/picture.png?raw=true))  
 
 ---
 
