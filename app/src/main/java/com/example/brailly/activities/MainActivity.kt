@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (savedInstanceState != null) {
             savedInstanceState.getString("text_buffer")?.let {
                 textBuffer.append(it)
-                binding.textView.text = textBuffer.toString()
+                binding.resultText.text = textBuffer.toString()
             }
         }
 
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                     if (result.isNotEmpty()) {
                         textBuffer.append(result)
-                        binding.textView.text = textBuffer.toString()
+                        binding.resultText.text = textBuffer.toString()
                         speak(result)
                     } else {
                         speak("kombinasi tidak dikenal")
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 println("Bahasa tidak didukung")
             } else {
-//                speak("Selamat datang di aplikasi Braille")
+//                speak("Selamat datang di aplikasi Braille")d
             }
         } else {
             println("Inisialisasi TTS gagal")
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun addSpace() {
         textBuffer.append(" ")
-        binding.textView.text = textBuffer.toString()
+        binding.resultText.text = textBuffer.toString()
         speak("spasi")
     }
 
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (textBuffer.isNotEmpty()) {
             val removed = textBuffer.last()
             textBuffer.deleteCharAt(textBuffer.length - 1)
-            binding.textView.text = textBuffer.toString()
+            binding.resultText.text = textBuffer.toString()
             speak("hapus $removed")
         }
     }
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun clearText() {
         textBuffer.clear()
-        binding.textView.text = ""
+        binding.resultText.text = ""
         speak("teks dihapus")
     }
 

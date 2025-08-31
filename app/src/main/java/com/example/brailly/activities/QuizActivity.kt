@@ -73,7 +73,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val result = decodeBraille(code)
                     if (result.isNotEmpty()) {
                         textBuffer.append(result)
-                        binding.textView.text = textBuffer.toString()
+                        binding.resultText.text = textBuffer.toString()
                         speak(result)
                     } else {
                         speak("kombinasi tidak dikenal")
@@ -89,7 +89,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 if (textBuffer.isNotEmpty()) {
                     val removed = textBuffer.last()
                     textBuffer.deleteCharAt(textBuffer.length - 1)
-                    binding.textView.text = textBuffer.toString()
+                    binding.resultText.text = textBuffer.toString()
                     speak("hapus $removed")
                 }
             },
@@ -116,7 +116,26 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun startQuiz() {
         currentIndex = 0
-        nextQuestion()
+        textBuffer.clear()
+        binding.resultText.text = "Bersiap untuk quiz..."
+
+        speak("Bersiaplah, quiz akan segera dimulai dalam tiga detik")
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            speak("Tiga", false)
+        }, 1000)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            speak("Dua", false)
+        }, 2000)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            speak("Satu", false)
+        }, 3000)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            nextQuestion()
+        }, 4000)
     }
 
     private fun nextQuestion() {
@@ -124,14 +143,20 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             speak("Selamat, semua hewan sudah ditebak!")
             return
         }
+
         currentAnimal = animals[currentIndex]
         currentIndex++
 
         textBuffer.clear()
-        binding.textView.text = "Tebak hewan ini..."
+        binding.resultText.text = "Tebak hewan ini..."
 
-        playAnimalSound()
+        speak("Soal nomor $currentIndex. Dengarkan baik baik.")
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            playAnimalSound()
+        }, 4000)
     }
+
 
     private fun playAnimalSound() {
         mediaPlayer?.let {
@@ -158,11 +183,16 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         if (userAnswer == correctAnswer) {
             speak("Benar! Ini adalah ${currentAnimal?.hint}")
-            nextQuestion()
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                nextQuestion()
+            }, 3000)
+
         } else {
             speak("Salah, coba lagi")
         }
     }
+
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
