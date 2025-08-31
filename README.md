@@ -50,3 +50,16 @@ Designed to make learning and practicing Braille accessible, interactive, and fu
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/Brailly.git
+2. Open the project in Android Studio
+   - Launch Android Studio (Narwhal or later)
+   - Select Open an existing project
+3. Sync Gradle
+   - Android Studio will prompt to sync Gradle; click Sync Now
+   - Wait until all dependencies are downloaded
+4. Build the project
+   - Click Build > Make Project or press Ctrl+F9
+   - Resolve any errors if prompted
+5. Run the app
+   - Connect an Android device or start an emulator
+   - Click Run > Run 'app' or press Shift+F10
+   - Choose the device/emulator to install and launch the app
