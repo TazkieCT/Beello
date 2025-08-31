@@ -14,12 +14,7 @@ Designed to make learning and practicing Braille accessible, interactive, and fu
 ---
 
 ## Demo
-
-![App Demo GIF](path/to/your/demo.gif)  
-*Swipe gestures and typing simulation in action.*
-
-![App Screenshot](https://drive.google.com/file/d/1qOUQ5OLtoRRWNyHdYOUcuYSOCRi2j7TZ/view?usp=drive_link)  
-*Landing page with tutorial and Braille simulation buttons.*
+![App Screenshot]([https://drive.google.com/file/d/1qOUQ5OLtoRRWNyHdYOUcuYSOCRi2j7TZ/view?usp=drive_link](https://github.com/TazkieCT/Beello/blob/master/picture.png?raw=true))  
 
 ---
 
@@ -46,9 +41,9 @@ Designed to make learning and practicing Braille accessible, interactive, and fu
 
 ### Prerequisites
 
-- Android Studio (Arctic Fox or later recommended)  
-- Kotlin support enabled  
-- Minimum SDK: 21 (Android 5.0 Lollipop)
+- Android Studio (Narwhal atau versi lebih baru)
+- Kotlin support enabled
+- Minimum SDK: 28 (Android 9.0 Pie)
 
 ### Installation
 
