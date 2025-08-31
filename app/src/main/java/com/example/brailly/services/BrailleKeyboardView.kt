@@ -11,7 +11,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.app.Activity
+import android.speech.tts.TextToSpeech
 import com.example.brailly.helper.vibrate
+import java.util.Locale
 
 class BrailleKeyboardView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -22,11 +24,22 @@ class BrailleKeyboardView @JvmOverloads constructor(
         color = Color.argb(180, 0, 0, 0)
         style = Paint.Style.FILL
     }
+    private var tts: TextToSpeech? = null
 
     init {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale("id", "ID")
+            }
+        }
+
         if (context is Activity) {
             context.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
+    }
+
+    private fun speak(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -52,6 +65,10 @@ class BrailleKeyboardView @JvmOverloads constructor(
     private val activeDots = mutableSetOf<Int>()
     private val pressedDots = mutableSetOf<Int>()
 
+    private var currentChar: String? = null
+    private var charAlpha = 255
+    private var fading = false
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
@@ -67,6 +84,37 @@ class BrailleKeyboardView @JvmOverloads constructor(
             }
             canvas.drawRoundRect(rect, 20f, 20f, paint)
         }
+
+        currentChar?.let {
+            val paint = Paint().apply {
+                color = Color.WHITE
+                textSize = 200f
+                textAlign = Paint.Align.CENTER
+                alpha = charAlpha
+            }
+            val x = width / 2f
+            val y = height / 2f - (paint.descent() + paint.ascent()) / 2
+            canvas.drawText(it, x, y, paint)
+        }
+
+        if (fading && charAlpha > 0) {
+            charAlpha -= 10
+            if (charAlpha < 0) charAlpha = 0
+            postInvalidateOnAnimation()
+        }
+    }
+
+    private fun showChar(char: String) {
+        currentChar = char
+        charAlpha = 255
+        fading = true
+        invalidate()
+
+        postDelayed({
+            charAlpha = 0
+            invalidate()
+            currentChar = null
+        }, 500)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -89,11 +137,12 @@ class BrailleKeyboardView @JvmOverloads constructor(
                 if (activeDots.isNotEmpty()) {
                     context.vibrate(30)
 
+                    pressedDots.clear()
                     pressedDots.addAll(activeDots)
 
                     postDelayed({
                         handleBrailleInput(activeDots.toList())
-                        pressedDots.removeAll(activeDots)
+                        pressedDots.clear()
                         activeDots.clear()
                         invalidate()
                     }, 200)
@@ -102,6 +151,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
                     invalidate()
                 }
             }
+
 
 
             MotionEvent.ACTION_CANCEL -> {
@@ -117,21 +167,37 @@ class BrailleKeyboardView @JvmOverloads constructor(
     }
 
     private fun handleBrailleInput(dots: List<Int>) {
+        val inputConnection = (context as? InputMethodService)?.currentInputConnection
         when {
             dots.contains(2) && dots.size == 1 -> {
                 commitText(" ")
+                speak("spasi")
                 return
             }
             dots.contains(3) && dots.size == 1 -> {
-                (context as? InputMethodService)?.currentInputConnection?.deleteSurroundingText(1, 0)
+                inputConnection?.deleteSurroundingText(1, 0)
+                speak("hapus")
+                return
+            }
+            dots.contains(4) && dots.size == 1 -> {
+                val extracted = inputConnection?.getExtractedText(
+                    android.view.inputmethod.ExtractedTextRequest(),
+                    0
+                )?.text?.toString()
+
+                if (!extracted.isNullOrEmpty()) {
+                    speak(extracted)
+                } else {
+                    speak("tidak ada teks")
+                }
                 return
             }
             dots.contains(5) && dots.size == 1 -> {
                 commitText("\n")
+                speak("enter")
                 return
             }
             dots.contains(6) && dots.size == 1 -> {
-                val inputConnection = (context as? InputMethodService)?.currentInputConnection
                 val extracted = inputConnection?.getExtractedText(
                     android.view.inputmethod.ExtractedTextRequest(),
                     0
@@ -142,9 +208,9 @@ class BrailleKeyboardView @JvmOverloads constructor(
                     val deleteCount = if (lastSpace == -1) extracted.length else extracted.length - lastSpace
                     inputConnection.deleteSurroundingText(deleteCount, 0)
                 }
+                speak("hapus kata")
                 return
             }
-
         }
 
         val brailleMap = mapOf(
@@ -178,6 +244,9 @@ class BrailleKeyboardView @JvmOverloads constructor(
 
         val char = brailleMap[dots.sorted()]
         commitText(char ?: "")
+        if (!char.isNullOrEmpty()) {
+            speak(char)
+            showChar(char)
+        }
     }
-
 }
