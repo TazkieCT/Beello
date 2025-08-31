@@ -11,6 +11,7 @@ import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.example.brailly.helper.vibrate
 import com.example.brailly.utils.BrailleMappings
 import com.example.brailly.utils.enableSwipeGestures
 import com.google.android.material.button.MaterialButton
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             button.setOnClickListener {
                 brailleDots[index] = !brailleDots[index]
                 button.isSelected = brailleDots[index]
+                vibrate()
 
                 pendingRunnable?.let { handler.removeCallbacks(it) }
 

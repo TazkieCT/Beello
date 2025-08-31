@@ -11,9 +11,20 @@ import com.google.android.material.button.MaterialButton
 import java.util.*
 import com.example.brailly.R
 import com.example.brailly.databinding.ActivityQuizBinding
+import com.example.brailly.helper.vibrate
+import com.example.brailly.models.Animal
 import com.example.brailly.utils.BrailleMappings
 import com.example.brailly.utils.enableSwipeGestures
 
+/**
+ * QuizActivity allows users to play an interactive animal guessing game.
+ *
+ * Features:
+ * - Braille input via six buttons.
+ * - Swipe gestures for delete, skip, replay, and check answer.
+ * - Text-to-Speech (TTS) provides instructions and feedback.
+ * - MediaPlayer plays animal sounds for each question.
+ */
 class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
@@ -35,6 +46,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var pendingRunnable: Runnable? = null
     private var isNumberMode = false
 
+    /** Decodes a Braille code into a character string */
     private fun decodeBraille(code: String): String {
         return when {
             code == "001111" -> {
@@ -67,6 +79,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             button.setOnClickListener {
                 brailleDots[index] = !brailleDots[index]
                 button.isSelected = brailleDots[index]
+                vibrate()
 
                 pendingRunnable?.let { handler.removeCallbacks(it) }
                 pendingRunnable = Runnable {
@@ -119,6 +132,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tts.shutdown()
     }
 
+    /** Starts the quiz with countdown and initializes the first question */
     private fun startQuiz() {
         currentIndex = 0
         textBuffer.clear()
@@ -143,6 +157,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }, 4000)
     }
 
+    /** Advances to the next question and plays the animal sound */
     private fun nextQuestion() {
         if (currentIndex >= animals.size) {
             speak("Selamat, semua hewan sudah ditebak!")
@@ -162,7 +177,7 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }, 4000)
     }
 
-
+    /** Plays the sound for the current animal */
     private fun playAnimalSound() {
         mediaPlayer?.let {
             if (it.isPlaying) {
@@ -176,12 +191,13 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         mediaPlayer?.start()
     }
 
+    /** Speaks a given text using TTS */
     private fun speak(text: String, flush: Boolean = true) {
         val queueMode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
         tts.speak(text, queueMode, null, null)
     }
 
-
+    /** Checks the user input against the current animal answer */
     private fun checkAnswer() {
         val userAnswer = textBuffer.toString().uppercase(Locale.getDefault())
         val correctAnswer = currentAnimal?.answer?.uppercase(Locale.getDefault())
@@ -198,13 +214,14 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-
+    /** Initializes TTS language */
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             tts.language = Locale("id", "ID")
         }
     }
 
+    /** Resets Braille dots and button states */
     private fun resetDots(buttons: List<MaterialButton>) {
         for (i in brailleDots.indices) {
             brailleDots[i] = false
@@ -213,9 +230,3 @@ class QuizActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 }
-
-data class Animal(
-    val answer: String,
-    val soundRes: Int,
-    val hint: String
-)

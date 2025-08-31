@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Selamat datang di aplikasi Braille!"
+            android:text="Selamat datang di aplikasi Beello!"
             android:textSize="18sp"
             android:textStyle="bold" />
 

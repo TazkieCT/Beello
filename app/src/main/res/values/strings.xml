@@ -1,7 +1,5 @@
 <resources>
-    <string name="app_name">Brailly</string>
+    <string name="app_name">Beello</string>
     <string name="tutorial_description">Braille adalah sistem titik timbul yang digunakan untuk membaca dan menulis bagi tunanetra. Di sini, kamu akan belajar huruf, angka, hingga cara mengetik Braille dengan mudah.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
 </resources>

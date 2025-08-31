@@ -178,6 +178,7 @@ class BrailleKeyboardView @JvmOverloads constructor(
 
     private fun handleBrailleInput(dots: List<Int>) {
         val inputConnection = (context as? InputMethodService)?.currentInputConnection
+
         when {
             dots.contains(2) && dots.size == 1 -> {
                 commitText(" ")

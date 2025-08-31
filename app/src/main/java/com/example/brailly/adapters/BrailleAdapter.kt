@@ -4,11 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.brailly.R
 import com.example.brailly.models.BrailleItem
 
+/**
+ * Adapter untuk menampilkan daftar gambar Braille dalam RecyclerView.
+ *
+ * @param brailleList Daftar item Braille yang akan ditampilkan.
+ */
 class BrailleAdapter(private val brailleList: List<BrailleItem>) :
     RecyclerView.Adapter<BrailleAdapter.BrailleViewHolder>() {
 
@@ -27,5 +31,5 @@ class BrailleAdapter(private val brailleList: List<BrailleItem>) :
         holder.image.setImageResource(item.imageRes)
     }
 
-    override fun getItemCount() = brailleList.size
+    override fun getItemCount(): Int = brailleList.size
 }
