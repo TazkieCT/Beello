@@ -49,23 +49,25 @@ class BrailleKeyboardView @JvmOverloads constructor(
         }
     }
 
+    private val activeDots = mutableSetOf<Int>()
+    private val pressedDots = mutableSetOf<Int>()
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
 
         val normalColor = Color.argb(180, 60, 60, 60)
-        val pressedColor = Color.argb(220, 30, 30, 30)
+        val activeColor = Color.argb(220, 30, 30, 30)
 
         dotRegions.forEachIndexed { index, rect ->
             val paint = Paint().apply {
-                color = if (activeDots.contains(index + 1)) pressedColor else normalColor
+                color = if (activeDots.contains(index + 1) || pressedDots.contains(index + 1))
+                    activeColor else normalColor
                 style = Paint.Style.FILL
             }
             canvas.drawRoundRect(rect, 20f, 20f, paint)
         }
     }
-
-    private val activeDots = mutableSetOf<Int>()
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
@@ -86,11 +88,21 @@ class BrailleKeyboardView @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 if (activeDots.isNotEmpty()) {
                     context.vibrate(30)
-                    handleBrailleInput(activeDots.toList())
+
+                    pressedDots.addAll(activeDots)
+
+                    postDelayed({
+                        handleBrailleInput(activeDots.toList())
+                        pressedDots.removeAll(activeDots)
+                        activeDots.clear()
+                        invalidate()
+                    }, 200)
+                } else {
+                    activeDots.clear()
+                    invalidate()
                 }
-                activeDots.clear()
-                invalidate()
             }
+
 
             MotionEvent.ACTION_CANCEL -> {
                 activeDots.clear()
@@ -105,6 +117,36 @@ class BrailleKeyboardView @JvmOverloads constructor(
     }
 
     private fun handleBrailleInput(dots: List<Int>) {
+        when {
+            dots.contains(2) && dots.size == 1 -> {
+                commitText(" ")
+                return
+            }
+            dots.contains(3) && dots.size == 1 -> {
+                (context as? InputMethodService)?.currentInputConnection?.deleteSurroundingText(1, 0)
+                return
+            }
+            dots.contains(5) && dots.size == 1 -> {
+                commitText("\n")
+                return
+            }
+            dots.contains(6) && dots.size == 1 -> {
+                val inputConnection = (context as? InputMethodService)?.currentInputConnection
+                val extracted = inputConnection?.getExtractedText(
+                    android.view.inputmethod.ExtractedTextRequest(),
+                    0
+                )?.text?.toString()
+
+                if (!extracted.isNullOrEmpty()) {
+                    val lastSpace = extracted.lastIndexOf(' ')
+                    val deleteCount = if (lastSpace == -1) extracted.length else extracted.length - lastSpace
+                    inputConnection.deleteSurroundingText(deleteCount, 0)
+                }
+                return
+            }
+
+        }
+
         val brailleMap = mapOf(
             listOf(1) to "A",
             listOf(1, 2) to "B",
@@ -137,4 +179,5 @@ class BrailleKeyboardView @JvmOverloads constructor(
         val char = brailleMap[dots.sorted()]
         commitText(char ?: "")
     }
+
 }

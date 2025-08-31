@@ -1,6 +1,7 @@
 package com.example.brailly.fragments
 
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,24 +11,45 @@ import com.example.brailly.R
 import com.example.brailly.adapters.BrailleAdapter
 import com.example.brailly.databinding.FragmentTutorial2Binding
 import com.example.brailly.models.BrailleItem
+import java.util.Locale
 
-class Tutorial2Fragment : Fragment() {
+class Tutorial2Fragment : Fragment(), TextToSpeech.OnInitListener {
 
-    private lateinit var binding: FragmentTutorial2Binding
+    private var _binding: FragmentTutorial2Binding? = null
+    private val binding get() = _binding!!
+
+    private var tts: TextToSpeech? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentTutorial2Binding.inflate(inflater, container, false)
+        _binding = FragmentTutorial2Binding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tts = TextToSpeech(requireContext(), this)
+
         binding.brailleRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
         binding.brailleRecyclerView.adapter = BrailleAdapter(getBrailleList())
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale("id", "ID"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                println("Bahasa tidak didukung")
+            } else {
+                speak(
+                    "Sekarang saatnya mengenali huruf A sampai Z. Setiap huruf memiliki pola titik braille yang berbeda untuk kamu pelajari."
+                )
+            }
+        } else {
+            println("Inisialisasi TTS gagal")
+        }
     }
 
     private fun getBrailleList(): List<BrailleItem> {
@@ -59,5 +81,16 @@ class Tutorial2Fragment : Fragment() {
             BrailleItem("Y", R.drawable.braille_y),
             BrailleItem("Z", R.drawable.braille_z)
         )
+    }
+
+    private fun speak(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        tts?.stop()
+        tts?.shutdown()
+        _binding = null
     }
 }
