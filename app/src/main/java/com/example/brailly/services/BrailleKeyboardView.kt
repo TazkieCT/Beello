@@ -146,44 +146,61 @@ class BrailleKeyboardView @JvmOverloads constructor(
         }, 500)
     }
 
+    private var pendingDots = mutableSetOf<Int>()
+    private var inputDelayRunnable: Runnable? = null
+    private val inputDelay = 300L
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                activeDots.clear()
+                // Hapus timer delay sebelumnya (karena user lanjut ngetik)
+                removeCallbacks(inputDelayRunnable)
+
+                // Deteksi dot yang disentuh
+                val touchedDots = mutableSetOf<Int>()
                 for (i in 0 until event.pointerCount) {
                     val x = event.getX(i)
                     val y = event.getY(i)
                     dotRegions.forEachIndexed { dotIndex, rect ->
                         if (rect.contains(x, y)) {
-                            indexToButtonNumber[dotIndex]?.let { buttonNumber ->
-                                activeDots.add(buttonNumber)
+                            indexToButtonNumber[dotIndex]?.let { btn ->
+                                touchedDots.add(btn)
                             }
                         }
                     }
                 }
+
+                // Tambahkan ke kombinasi aktif
+                activeDots.addAll(touchedDots)
+                pendingDots.addAll(touchedDots)
                 invalidate()
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                if (activeDots.isNotEmpty()) {
-                    context.vibrate(30)
-                    pressedDots.clear()
-                    pressedDots.addAll(activeDots)
+                // Update dots terakhir
+                pressedDots.clear()
+                pressedDots.addAll(pendingDots)
+                invalidate()
 
-                    postDelayed({
-                        handleBrailleInput(activeDots.toList())
-                        pressedDots.clear()
+                // Reset timer lama dan buat ulang
+                removeCallbacks(inputDelayRunnable)
+                inputDelayRunnable = Runnable {
+                    if (pendingDots.isNotEmpty()) {
+                        context.vibrate(30)
+                        handleBrailleInput(pendingDots.toList())
                         activeDots.clear()
+                        pressedDots.clear()
+                        pendingDots.clear()
                         invalidate()
-                    }, 200)
-                } else {
-                    activeDots.clear()
-                    invalidate()
+                    }
                 }
+                postDelayed(inputDelayRunnable, inputDelay)
             }
 
             MotionEvent.ACTION_CANCEL -> {
                 activeDots.clear()
+                pendingDots.clear()
+                pressedDots.clear()
                 invalidate()
             }
         }
@@ -272,6 +289,8 @@ class BrailleKeyboardView @JvmOverloads constructor(
         if (!char.isNullOrEmpty()) {
             speak(char)
             showChar(char)
+        }else{
+            speak("tidak ditemukan")
         }
     }
 }
