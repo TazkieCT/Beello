@@ -22,7 +22,6 @@ class Tutorial2Fragment : Fragment() {
 
     private var _binding: FragmentTutorial2Binding? = null
     private val binding get() = _binding!!
-
     private lateinit var ttsHelper: TtsHelper
 
     /**

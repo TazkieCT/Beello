@@ -30,8 +30,8 @@ class TutorialActivity : AppCompatActivity() {
         "Langkah 1: Kenalan dengan Braille",
         "Langkah 2: Belajar huruf A - Z",
         "Langkah 3: Belajar angka 0 - 9",
-        "Langkah 4: Kontrol aplikasi Braille",
-        "Langkah 5: Latihan mengetik Braille"
+//        "Langkah 4: Kontrol aplikasi Braille",
+        "Langkah 4: Latihan mengetik Braille"
     )
 
     private val fragments = listOf(
