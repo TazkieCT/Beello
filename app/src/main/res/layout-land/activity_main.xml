@@ -1,38 +1,38 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <TextView
-        android:id="@+id/result_text"
-        style="@style/BrailleTextViewStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/braille_right"
-        app:layout_constraintStart_toEndOf="@+id/braille_left"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Teks yang ditulis disini..." />
+    <!--    <TextView-->
+    <!--        android:id="@+id/result_text"-->
+    <!--        style="@style/BrailleTextViewStyle"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginHorizontal="16dp"-->
+    <!--        android:textSize="24sp"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toStartOf="@+id/braille_right"-->
+    <!--        app:layout_constraintStart_toEndOf="@+id/braille_left"-->
+    <!--        app:layout_constraintTop_toTopOf="parent"-->
+    <!--        tools:text="Teks yang ditulis disini..." />-->
 
     <LinearLayout
         android:id="@+id/braille_left"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:gravity="center"
         android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
+        app:layout_constraintEnd_toStartOf="@id/braille_right">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button4"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:backgroundTint="@color/button_toggle_color"
@@ -46,7 +46,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button5"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:backgroundTint="@color/button_toggle_color"
@@ -60,7 +60,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button6"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:backgroundTint="@color/button_toggle_color"
@@ -71,23 +71,24 @@
             app:cornerRadius="12dp"
             app:strokeColor="@color/gray"
             app:strokeWidth="4dp" />
-
     </LinearLayout>
 
+    <!-- RIGHT -->
     <LinearLayout
         android:id="@+id/braille_right"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:gravity="center"
         android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toEndOf="@id/braille_left"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button1"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:backgroundTint="@color/button_toggle_color"
@@ -101,7 +102,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button2"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:backgroundTint="@color/button_toggle_color"
@@ -115,7 +116,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button3"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:backgroundTint="@color/button_toggle_color"
@@ -126,7 +127,6 @@
             app:cornerRadius="12dp"
             app:strokeColor="@color/gray"
             app:strokeWidth="4dp" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

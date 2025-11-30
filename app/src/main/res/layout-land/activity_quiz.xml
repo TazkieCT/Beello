@@ -5,30 +5,30 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <TextView
-        android:id="@+id/question_number_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@id/result_text"
-        app:layout_constraintEnd_toStartOf="@+id/braille_right"
-        app:layout_constraintStart_toEndOf="@+id/braille_left"
-        tools:text="Soal ke - 1" />
+<!--    <TextView-->
+<!--        android:id="@+id/question_number_text"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginHorizontal="16dp"-->
+<!--        android:textAlignment="center"-->
+<!--        android:textSize="24sp"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/result_text"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/braille_right"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/braille_left"-->
+<!--        tools:text="Soal ke - 1" />-->
 
-    <TextView
-        android:id="@+id/result_text"
-        style="@style/BrailleTextViewStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/braille_right"
-        app:layout_constraintStart_toEndOf="@+id/braille_left"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Teks yang ditulis disini..." />
+<!--    <TextView-->
+<!--        android:id="@+id/result_text"-->
+<!--        style="@style/BrailleTextViewStyle"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginHorizontal="16dp"-->
+<!--        android:textSize="24sp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/braille_right"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/braille_left"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        tools:text="Teks yang ditulis disini..." />-->
 
     <LinearLayout
         android:id="@+id/braille_left"
