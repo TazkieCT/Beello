@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         // Restore saved text
         savedInstanceState?.getString("text_buffer")?.let {
             textBuffer.append(it)
-            binding.resultText.text = textBuffer.toString()
+            binding.resultText?.text = textBuffer.toString()
         }
 
         val buttons = listOf(
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
                     if (result.isNotEmpty()) {
                         textBuffer.append(result)
-                        binding.resultText.text = textBuffer.toString()
+                        binding.resultText?.text = textBuffer.toString()
                         ttsHelper.speak(result, false)
                     } else {
                         ttsHelper.speak("kombinasi tidak dikenal", false)
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
     /** Adds a space to the text buffer and speaks "spasi" */
     private fun addSpace() {
         textBuffer.append(" ")
-        binding.resultText.text = textBuffer.toString()
+        binding.resultText?.text = textBuffer.toString()
         ttsHelper.speak("spasi", false)
     }
 
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         if (textBuffer.isNotEmpty()) {
             val removed = textBuffer.last()
             textBuffer.deleteCharAt(textBuffer.length - 1)
-            binding.resultText.text = textBuffer.toString()
+            binding.resultText?.text = textBuffer.toString()
             ttsHelper.speak("hapus $removed", false)
         }
     }
@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
     /** Clears all text and announces the action */
     private fun clearText() {
         textBuffer.clear()
-        binding.resultText.text = ""
+        binding.resultText?.text = ""
         ttsHelper.speak("teks dihapus", false)
     }
 

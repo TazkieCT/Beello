@@ -41,7 +41,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button4"
             android:layout_width="250dp"

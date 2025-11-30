@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Latihan Mengetik Braille"
+            android:text="@string/title_tutorial5"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:text="Ayo berlatih mengetik huruf Braille dengan permainan quiz seru! Geser layar ke atas untuk memulai quiz, atau ke bawah untuk simulasi mengetik Braille dengan bebas."
+            android:text="@string/tutorial5_description"
             android:textAlignment="center"
             android:textSize="16sp" />
 
