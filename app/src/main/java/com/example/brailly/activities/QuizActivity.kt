@@ -15,15 +15,6 @@ import com.example.brailly.utils.enableSwipeGestures
 import com.google.android.material.button.MaterialButton
 import java.util.Locale
 
-/**
- * QuizActivity allows users to play an interactive animal guessing game.
- *
- * Features:
- * - Braille input via six buttons.
- * - Swipe gestures for deleting characters, skipping question, replaying sound, and checking answers.
- * - Text-to-Speech (TTS) provides instructions, feedback, and hints.
- * - MediaPlayer plays animal sounds associated with each question.
- */
 class QuizActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityQuizBinding
@@ -79,7 +70,7 @@ class QuizActivity : AppCompatActivity() {
                         binding.resultText?.text = textBuffer.toString()
                         ttsHelper.speak(result, false)
                     } else {
-                        ttsHelper.speak("kombinasi tidak dikenal", false)
+                        ttsHelper.speak(getTtsText("kombinasi tidak dikenal", "unknown combination"), false)
                     }
                     resetDots(buttons)
                 }
@@ -119,26 +110,38 @@ class QuizActivity : AppCompatActivity() {
     private fun startQuiz() {
         currentIndex = 0
         textBuffer.clear()
-        binding.resultText?.text = "Bersiap untuk quiz..."
-        ttsHelper.speak("Bersiaplah, quiz akan segera dimulai dalam tiga detik", false)
+        binding.resultText?.text = getTtsText("Bersiap untuk quiz...", "Get ready for the quiz...")
 
-        Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak("Tiga", false) }, 1000)
-        Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak("Dua", false) }, 2000)
-        Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak("Satu", false) }, 3000)
+        ttsHelper.speak(getTtsText(
+            "Bersiaplah, quiz akan segera dimulai dalam tiga detik",
+            "Get ready, the quiz will start in three seconds"
+        ), false)
+
+        Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak(getTtsText("Tiga", "Three"), false) }, 1000)
+        Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak(getTtsText("Dua", "Two"), false) }, 2000)
+        Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak(getTtsText("Satu", "One"), false) }, 3000)
         Handler(Looper.getMainLooper()).postDelayed({ nextQuestion() }, 4000)
     }
 
     /** Advances to the next question */
     private fun nextQuestion() {
         if (currentIndex >= animals.size) {
-            ttsHelper.speak("Selamat, semua hewan sudah ditebak!", false)
+            ttsHelper.speak(getTtsText(
+                "Selamat, semua hewan sudah ditebak!",
+                "Congratulations, all animals have been guessed!"
+            ), false)
             return
         }
 
         currentAnimal = animals[currentIndex++]
         textBuffer.clear()
-        binding.resultText?.text = "Tebak hewan ini..."
-        ttsHelper.speak("Soal nomor $currentIndex. Dengarkan baik baik.", false)
+        binding.resultText?.text = getTtsText("Tebak hewan ini...", "Guess this animal...")
+
+        ttsHelper.speak(getTtsText(
+            "Soal nomor %d. Dengarkan baik baik.",
+            "Question number %d. Listen carefully.",
+            currentIndex
+        ), false)
 
         handler.postDelayed({ playAnimalSound() }, 4000)
     }
@@ -159,13 +162,17 @@ class QuizActivity : AppCompatActivity() {
             val removed = textBuffer.last()
             textBuffer.deleteCharAt(textBuffer.length - 1)
             binding.resultText?.text = textBuffer.toString()
-            ttsHelper.speak("hapus $removed", false)
+            ttsHelper.speak(getTtsText("hapus %s", "deleted %s", removed), false)
         }
     }
 
     /** Skips the current question and announces the answer */
     private fun skipQuestion() {
-        ttsHelper.speak("Jawabannya adalah ${currentAnimal?.answer}", false)
+        ttsHelper.speak(getTtsText(
+            "Jawabannya adalah %s",
+            "The answer is %s",
+            currentAnimal?.answer ?: ""
+        ), false)
         nextQuestion()
     }
 
@@ -174,10 +181,14 @@ class QuizActivity : AppCompatActivity() {
         val userAnswer = textBuffer.toString().uppercase(Locale.getDefault())
         val correctAnswer = currentAnimal?.answer?.uppercase(Locale.getDefault())
         if (userAnswer == correctAnswer) {
-            ttsHelper.speak("Benar! Ini adalah ${currentAnimal?.hint}", false)
+            ttsHelper.speak(getTtsText(
+                "Benar! Ini adalah %s",
+                "Correct! This is %s",
+                currentAnimal?.hint ?: ""
+            ), false)
             handler.postDelayed({ nextQuestion() }, 3000)
         } else {
-            ttsHelper.speak("Salah, coba lagi", false)
+            ttsHelper.speak(getTtsText("Salah, coba lagi", "Wrong, try again"), false)
         }
     }
 
@@ -195,5 +206,15 @@ class QuizActivity : AppCompatActivity() {
         mediaPlayer?.release()
         ttsHelper.stop()
         ttsHelper.shutdown()
+    }
+
+    // --- Helper functions for language-aware TTS ---
+    private fun getTtsText(indonesian: String, english: String): String {
+        return if (Locale.getDefault().language == "id") indonesian else english
+    }
+
+    private fun getTtsText(indonesianTemplate: String, englishTemplate: String, vararg args: Any): String {
+        val template = if (Locale.getDefault().language == "id") indonesianTemplate else englishTemplate
+        return String.format(template, *args)
     }
 }

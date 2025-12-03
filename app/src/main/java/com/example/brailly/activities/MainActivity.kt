@@ -10,6 +10,7 @@ import com.example.brailly.utils.BrailleMappings
 import com.example.brailly.utils.TtsHelper
 import com.example.brailly.utils.enableSwipeGestures
 import com.google.android.material.button.MaterialButton
+import java.util.*
 
 /**
  * MainActivity serves as the core Braille typing simulation.
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                         binding.resultText?.text = textBuffer.toString()
                         ttsHelper.speak(result, false)
                     } else {
-                        ttsHelper.speak("kombinasi tidak dikenal", false)
+                        ttsHelper.speak(getTtsText("kombinasi tidak dikenal", "unknown combination"), false)
                     }
 
                     resetDots(buttons)
@@ -109,6 +110,11 @@ class MainActivity : AppCompatActivity() {
         return when {
             code == "001111" -> {
                 isNumberMode = !isNumberMode
+                val msg = if (isNumberMode)
+                    getTtsText("mode angka aktif", "number mode on")
+                else
+                    getTtsText("mode angka nonaktif", "number mode off")
+                ttsHelper.speak(msg, false)
                 "#"
             }
             isNumberMode -> {
@@ -121,11 +127,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Adds a space to the text buffer and speaks "spasi" */
+    /** Adds a space to the text buffer and speaks "space" */
     private fun addSpace() {
         textBuffer.append(" ")
         binding.resultText?.text = textBuffer.toString()
-        ttsHelper.speak("spasi", false)
+        ttsHelper.speak(getTtsText("spasi", "space"), false)
     }
 
     /** Deletes the last character and announces it */
@@ -134,21 +140,23 @@ class MainActivity : AppCompatActivity() {
             val removed = textBuffer.last()
             textBuffer.deleteCharAt(textBuffer.length - 1)
             binding.resultText?.text = textBuffer.toString()
-            ttsHelper.speak("hapus $removed", false)
+            ttsHelper.speak(getTtsText("hapus %s", "deleted %s", removed), false)
         }
     }
 
     /** Speaks the entire text buffer */
     private fun speakAll() {
-        if (textBuffer.isNotEmpty()) ttsHelper.speak(textBuffer.toString(), false)
-        else ttsHelper.speak("tidak ada teks", false)
+        if (textBuffer.isNotEmpty())
+            ttsHelper.speak(textBuffer.toString(), false)
+        else
+            ttsHelper.speak(getTtsText("tidak ada teks", "no text"), false)
     }
 
     /** Clears all text and announces the action */
     private fun clearText() {
         textBuffer.clear()
         binding.resultText?.text = ""
-        ttsHelper.speak("teks dihapus", false)
+        ttsHelper.speak(getTtsText("teks dihapus", "text cleared"), false)
     }
 
     /** Resets Braille dots and button states */
@@ -178,5 +186,15 @@ class MainActivity : AppCompatActivity() {
         ttsHelper.stop()
         ttsHelper.shutdown()
         super.onDestroy()
+    }
+
+    // --- Helper function for language-aware TTS ---
+    private fun getTtsText(indonesian: String, english: String): String {
+        return if (Locale.getDefault().language == "id") indonesian else english
+    }
+
+    private fun getTtsText(indonesianTemplate: String, englishTemplate: String, vararg args: Any): String {
+        val template = if (Locale.getDefault().language == "id") indonesianTemplate else englishTemplate
+        return String.format(template, *args)
     }
 }
