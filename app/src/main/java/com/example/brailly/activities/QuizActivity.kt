@@ -31,9 +31,9 @@ class QuizActivity : AppCompatActivity() {
     private var mediaPlayer: MediaPlayer? = null
 
     private val animals = listOf(
-        Animal("KUCING", R.raw.cat, "Kucing"),
-        Animal("ANJING", R.raw.dog, "Anjing"),
-        Animal("AYAM", R.raw.chicken, "Ayam")
+        Animal("CAT", R.raw.cat, "CAT"),
+        Animal("DOG", R.raw.dog, "DOG"),
+        Animal("CHICKEN", R.raw.chicken, "CHICKEN")
     )
 
     private var currentAnimal: Animal? = null
@@ -76,7 +76,7 @@ class QuizActivity : AppCompatActivity() {
                     val result = decodeBraille(code)
                     if (result.isNotEmpty()) {
                         textBuffer.append(result)
-                        binding.resultText.text = textBuffer.toString()
+                        binding.resultText?.text = textBuffer.toString()
                         ttsHelper.speak(result, false)
                     } else {
                         ttsHelper.speak("kombinasi tidak dikenal", false)
@@ -119,7 +119,7 @@ class QuizActivity : AppCompatActivity() {
     private fun startQuiz() {
         currentIndex = 0
         textBuffer.clear()
-        binding.resultText.text = "Bersiap untuk quiz..."
+        binding.resultText?.text = "Bersiap untuk quiz..."
         ttsHelper.speak("Bersiaplah, quiz akan segera dimulai dalam tiga detik", false)
 
         Handler(Looper.getMainLooper()).postDelayed({ ttsHelper.speak("Tiga", false) }, 1000)
@@ -137,7 +137,7 @@ class QuizActivity : AppCompatActivity() {
 
         currentAnimal = animals[currentIndex++]
         textBuffer.clear()
-        binding.resultText.text = "Tebak hewan ini..."
+        binding.resultText?.text = "Tebak hewan ini..."
         ttsHelper.speak("Soal nomor $currentIndex. Dengarkan baik baik.", false)
 
         handler.postDelayed({ playAnimalSound() }, 4000)
@@ -158,7 +158,7 @@ class QuizActivity : AppCompatActivity() {
         if (textBuffer.isNotEmpty()) {
             val removed = textBuffer.last()
             textBuffer.deleteCharAt(textBuffer.length - 1)
-            binding.resultText.text = textBuffer.toString()
+            binding.resultText?.text = textBuffer.toString()
             ttsHelper.speak("hapus $removed", false)
         }
     }
