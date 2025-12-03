@@ -10,6 +10,7 @@ import com.example.brailly.adapters.BrailleAdapter
 import com.example.brailly.databinding.FragmentTutorial2Binding
 import com.example.brailly.utils.BrailleData
 import com.example.brailly.utils.TtsHelper
+import java.util.*
 
 /**
  * Fragment to display Braille letters from A to Z.
@@ -24,9 +25,6 @@ class Tutorial2Fragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var ttsHelper: TtsHelper
 
-    /**
-     * Inflates the fragment layout using View Binding.
-     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,32 +34,32 @@ class Tutorial2Fragment : Fragment() {
         return binding.root
     }
 
-    /**
-     * Initializes TTS and sets up the RecyclerView with Braille letters.
-     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize Text-to-Speech
         ttsHelper = TtsHelper(requireContext())
-        ttsHelper.speak(
-            "Now it's time to learn the letters A to Z. " +
-                    "Each letter has a unique Braille dot pattern for you to study.",
-            false
-        )
+
+        val indonesianText = "Sekarang saatnya belajar huruf A hingga Z. Setiap huruf memiliki pola titik Braille unik untuk dipelajari."
+        val englishText = "Now it's time to learn the letters A to Z. Each letter has a unique Braille dot pattern for you to study."
+
+        // Speak instructions based on phone language
+        ttsHelper.speak(getTtsText(indonesianText, englishText), false)
 
         // Set up RecyclerView with a 4-column grid
         binding.brailleRecyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
         binding.brailleRecyclerView.adapter = BrailleAdapter(BrailleData.letters)
     }
 
-    /**
-     * Cleans up TTS and binding when the view is destroyed.
-     */
     override fun onDestroyView() {
         super.onDestroyView()
         ttsHelper.stop()
         ttsHelper.shutdown()
         _binding = null
+    }
+
+    /** Helper function to choose text based on phone language */
+    private fun getTtsText(indonesian: String, english: String): String {
+        return if (Locale.getDefault().language == "id") indonesian else english
     }
 }

@@ -7,15 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.brailly.databinding.ActivityLandingBinding
 import com.example.brailly.utils.TtsHelper
 import com.example.brailly.utils.enableSwipeGestures
+import java.util.*
 
-/**
- * LandingActivity serves as the main entry point after calibration.
- *
- * Features:
- * - Swipe gestures to navigate to tutorial or Braille simulation.
- * - Buttons for direct navigation.
- * - Text-to-Speech (TTS) provides verbal instructions to guide the user.
- */
 class LandingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLandingBinding
@@ -46,9 +39,10 @@ class LandingActivity : AppCompatActivity() {
     /** Provides welcome instructions using TTS */
     private fun speakWelcomeInstructions() {
         ttsHelper.speak(
-            "Selamat datang di aplikasi Braille. " +
-                    "Swipe ke atas untuk mulai panduan. " +
-                    "Swipe ke bawah untuk mulai simulasi mengetik Braille.",
+            getTtsText(
+                "Selamat datang di aplikasi Braille. Swipe ke atas untuk mulai panduan. Swipe ke bawah untuk mulai simulasi mengetik Braille.",
+                "Welcome to the Braille app. Swipe up to start the tutorial. Swipe down to start the Braille typing simulation."
+            ),
             flush = true
         )
     }
@@ -73,5 +67,10 @@ class LandingActivity : AppCompatActivity() {
         ttsHelper.stop()
         ttsHelper.shutdown()
         super.onDestroy()
+    }
+
+    // --- Helper function to pick language-specific text ---
+    private fun getTtsText(indonesian: String, english: String): String {
+        return if (Locale.getDefault().language == "id") indonesian else english
     }
 }

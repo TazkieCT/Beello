@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">Beello</string>
-    <string name="tutorial_description">Braille adalah sistem titik timbul yang digunakan untuk membaca dan menulis bagi tunanetra. Di sini, kamu akan belajar huruf, angka, hingga cara mengetik Braille dengan mudah.</string>
+    <string name="tutorial_description">Braille is a system of raised dots used for reading and writing by visually impaired people. Here, you will learn letters, numbers, and how to type Braille easily.</string>
     <string name="braille_input">Braille Input</string>
-    <string name="welcome_tutorial1">Selamat datang di aplikasi Beello!</string>
-    <string name="notes_tutorial_3">Notes: angka 0 - 9 memiliki cara tulis\nyang sama seperti a sampai j</string>
-    <string name="title_tutorial5">Latihan Mengetik Braille</string>
-    <string name="tutorial5_description">Ayo berlatih mengetik huruf Braille dengan permainan quiz seru! Geser layar ke atas untuk memulai quiz, atau ke bawah untuk simulasi mengetik Braille dengan bebas.</string>
-
+    <string name="welcome_tutorial1">Welcome to the Beello app!</string>
+    <string name="notes_tutorial_3">Note: Numbers 0 - 9 are written the same way as letters a to j</string>
+    <string name="title_tutorial5">Braille Typing Practice</string>
+    <string name="tutorial5_description">Lets practice typing Braille letters with a fun quiz game! Swipe up to start the quiz, or swipe down for free Braille typing simulation.</string>
+    <string name="guide_type_braille">Braille Typing Guide</string>
+    <string name="start_type_braille">Start Braille Typing</string>
+    <string name="step_1_tutorial">Step 1: Introduction to Braille</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="start_quiz">Start Quiz</string>
+    <string name="start_typing_braille">Start Braille Typing</string>
 </resources>

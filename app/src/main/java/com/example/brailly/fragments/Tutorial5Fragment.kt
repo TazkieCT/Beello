@@ -11,6 +11,7 @@ import com.example.brailly.activities.QuizActivity
 import com.example.brailly.databinding.FragmentTutorial5Binding
 import com.example.brailly.utils.TtsHelper
 import com.example.brailly.utils.enableSwipeGestures
+import java.util.*
 
 /**
  * Tutorial5Fragment provides the final step of the tutorial where users can practice Braille typing
@@ -23,13 +24,9 @@ import com.example.brailly.utils.enableSwipeGestures
  */
 class Tutorial5Fragment : Fragment() {
 
-    // View binding instance
     private lateinit var binding: FragmentTutorial5Binding
-
-    // Text-to-Speech helper instance
     private lateinit var ttsHelper: TtsHelper
 
-    /** Inflates the fragment layout using View Binding */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,13 +35,13 @@ class Tutorial5Fragment : Fragment() {
 
         ttsHelper = TtsHelper(requireContext())
 
-        // Speak instructions on view creation
-        ttsHelper.speak(
-            "Ayo berlatih mengetik huruf Braille dengan permainan quiz seru! " +
-                    "Geser layar ke atas atau tekan tombol Mulai Quiz untuk memulai. " +
-                    "Atau geser ke bawah untuk simulasi mengetik Braille dengan bebas.",
-            false
-        )
+        val indonesianText = "Ayo berlatih mengetik huruf Braille dengan permainan quiz seru! " +
+                "Geser layar ke atas atau tekan tombol Mulai Quiz untuk memulai. " +
+                "Atau geser ke bawah untuk simulasi mengetik Braille dengan bebas."
+        val englishText = "Let's practice typing Braille letters with a fun quiz game! " +
+                "Swipe up or press Start Quiz to begin, or swipe down for free Braille typing simulation."
+
+        ttsHelper.speak(getTtsText(indonesianText, englishText), false)
 
         binding.startQuizButton.setOnClickListener {
             goToQuiz()
@@ -55,24 +52,33 @@ class Tutorial5Fragment : Fragment() {
             onSwipeDown = {
                 ttsHelper.stop()
                 startActivity(Intent(requireContext(), MainActivity::class.java))
-                ttsHelper.speak("Membuka simulasi mengetik Braille", false)
+                ttsHelper.speak(
+                    getTtsText(
+                        "Membuka simulasi mengetik Braille",
+                        "Opening free Braille typing simulation"
+                    ),
+                    false
+                )
             }
         )
 
         return binding.root
     }
 
-    /** Stops TTS and navigates to the QuizActivity */
     private fun goToQuiz() {
         ttsHelper.stop()
         startActivity(Intent(requireContext(), QuizActivity::class.java))
-        ttsHelper.speak("Memulai quiz Braille", false)
+        ttsHelper.speak(getTtsText("Memulai quiz Braille", "Starting Braille quiz"), false)
     }
 
-    /** Cleans up TTS when the fragment is destroyed */
     override fun onDestroyView() {
         super.onDestroyView()
         ttsHelper.stop()
         ttsHelper.shutdown()
+    }
+
+    /** Helper function to choose text based on phone language */
+    private fun getTtsText(indonesian: String, english: String): String {
+        return if (Locale.getDefault().language == "id") indonesian else english
     }
 }
