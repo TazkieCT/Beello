@@ -46,12 +46,13 @@ class BrailleKeyboardView @JvmOverloads constructor(
     )
 
     init {
-        // Initialize TTS for Indonesian
+        // Initialize TTS for English
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale("id", "ID")
+                tts?.language = Locale.US
             }
         }
+
 
         // Force landscape orientation
         if (context is Activity) {
@@ -220,19 +221,19 @@ class BrailleKeyboardView @JvmOverloads constructor(
         when {
             dots.contains(2) && dots.size == 1 -> {
                 commitText(" ")
-                speak("spasi")
+                speak("space")
                 return
             }
             dots.contains(3) && dots.size == 1 -> {
                 inputConnection?.deleteSurroundingText(1, 0)
-                speak("hapus")
+                speak("delete")
                 return
             }
             dots.contains(4) && dots.size == 1 -> {
                 val extracted = inputConnection?.getExtractedText(
                     android.view.inputmethod.ExtractedTextRequest(), 0
                 )?.text?.toString()
-                if (!extracted.isNullOrEmpty()) speak(extracted) else speak("tidak ada teks")
+                if (!extracted.isNullOrEmpty()) speak(extracted) else speak("no text")
                 return
             }
             dots.contains(5) && dots.size == 1 -> {
@@ -246,10 +247,11 @@ class BrailleKeyboardView @JvmOverloads constructor(
                 )?.text?.toString()
                 if (!extracted.isNullOrEmpty()) {
                     val lastSpace = extracted.lastIndexOf(' ')
-                    val deleteCount = if (lastSpace == -1) extracted.length else extracted.length - lastSpace
+                    val deleteCount =
+                        if (lastSpace == -1) extracted.length else extracted.length - lastSpace
                     inputConnection.deleteSurroundingText(deleteCount, 0)
                 }
-                speak("hapus kata")
+                speak("delete word")
                 return
             }
         }
@@ -289,8 +291,9 @@ class BrailleKeyboardView @JvmOverloads constructor(
         if (!char.isNullOrEmpty()) {
             speak(char)
             showChar(char)
-        }else{
-            speak("tidak ditemukan")
+        } else {
+            speak("not found")
         }
+
     }
 }
